@@ -36,22 +36,6 @@ class HomeWidget(QWidget):
         
         # Panel derecho: Últimos proyectos
         projects_panel = self.create_projects_panel()
-        content_layout.addWidget(projects_panel, 1)
-        
-        main_layout.addLayout(content_layout)
-        
-        # Panel inferior: Estadísticas rápidas
-        stats_panel = self.create_stats_panel()
-        main_layout.addWidget(stats_panel)
-        
-        main_layout.addStretch()
-        self.setLayout(main_layout)
-
-    def create_materials_panel(self):
-        """Panel con gráfico de uso de materiales."""
-        panel = QFrame()
-        panel.setStyleSheet("""
-            QFrame {
                 background-color: #2a2a2a;
                 border-radius: 8px;
                 border: 1px solid #3a3a3a;
