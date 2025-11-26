@@ -12,31 +12,30 @@ class LibraryWidget(QWidget):
         self.refresh_list()
 
     def init_ui(self):
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
+        
+        # Toolbar superior con botones
+        toolbar = QHBoxLayout()
+        self.btn_add = QPushButton("+ Añadir Modelo")
+        self.btn_add.clicked.connect(self.add_model)
+        self.btn_delete = QPushButton("Eliminar")
+        self.btn_delete.setStyleSheet("background-color: #8b0000; color: white;")
+        self.btn_delete.clicked.connect(self.delete_model)
+        
+        toolbar.addWidget(self.btn_add)
+        toolbar.addWidget(self.btn_delete)
+        toolbar.addStretch()
+        
+        layout.addLayout(toolbar)
         
         # Splitter para redimensionar
         splitter = QSplitter(Qt.Horizontal)
 
-        # Panel Izquierdo: Lista y Botones
-        left_panel = QWidget()
-        left_layout = QVBoxLayout(left_panel)
-        
+        # Panel Izquierdo: Solo Lista
         self.model_list = QListWidget()
         self.model_list.itemClicked.connect(self.on_model_selected)
-        left_layout.addWidget(self.model_list)
-
-        btn_layout = QHBoxLayout()
-        self.btn_add = QPushButton("Añadir Modelo")
-        self.btn_add.clicked.connect(self.add_model)
-        self.btn_delete = QPushButton("Eliminar")
-        self.btn_delete.setStyleSheet("background-color: #c0392b; color: white;")
-        self.btn_delete.clicked.connect(self.delete_model)
         
-        btn_layout.addWidget(self.btn_add)
-        btn_layout.addWidget(self.btn_delete)
-        left_layout.addLayout(btn_layout)
-        
-        splitter.addWidget(left_panel)
+        splitter.addWidget(self.model_list)
 
         # Panel Derecho: Visor 3D
         self.viewer = Viewer3DWidget()
@@ -46,8 +45,8 @@ class LibraryWidget(QWidget):
         splitter.setSizes([300, 700])
         splitter.setStretchFactor(0, 0)  # Panel izquierdo no se estira
         splitter.setStretchFactor(1, 1)  # Panel derecho se estira
-        left_panel.setMinimumWidth(250)
-        left_panel.setMaximumWidth(350)
+        self.model_list.setMinimumWidth(250)
+        self.model_list.setMaximumWidth(350)
 
         layout.addWidget(splitter)
         self.setLayout(layout)
