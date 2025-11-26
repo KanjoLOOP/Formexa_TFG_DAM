@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         # Título / Logo
         title_label = QLabel("Gestor 3D")
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 20px; font-weight: bold; padding: 20px; color: #0d6efd;")
+        title_label.setStyleSheet("font-size: 20px; font-weight: bold; padding: 20px; color: #ecf0f1;")
         layout.addWidget(title_label)
 
         # Botones de navegación

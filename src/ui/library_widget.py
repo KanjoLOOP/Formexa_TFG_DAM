@@ -29,7 +29,7 @@ class LibraryWidget(QWidget):
         self.btn_add = QPushButton("Añadir Modelo")
         self.btn_add.clicked.connect(self.add_model)
         self.btn_delete = QPushButton("Eliminar")
-        self.btn_delete.setStyleSheet("background-color: #dc3545;")
+        self.btn_delete.setStyleSheet("background-color: #c0392b; color: white;")
         self.btn_delete.clicked.connect(self.delete_model)
         
         btn_layout.addWidget(self.btn_add)
@@ -42,8 +42,12 @@ class LibraryWidget(QWidget):
         self.viewer = Viewer3DWidget()
         splitter.addWidget(self.viewer)
         
-        # Configuración inicial del splitter
+        # Configuración inicial del splitter - Fijo para mantener proporción
         splitter.setSizes([300, 700])
+        splitter.setStretchFactor(0, 0)  # Panel izquierdo no se estira
+        splitter.setStretchFactor(1, 1)  # Panel derecho se estira
+        left_panel.setMinimumWidth(250)
+        left_panel.setMaximumWidth(350)
 
         layout.addWidget(splitter)
         self.setLayout(layout)

@@ -11,7 +11,7 @@ class Viewer3DWidget(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         
-        self.figure = Figure(figsize=(5, 5), dpi=100, facecolor='#2b2b2b')
+        self.figure = Figure(figsize=(5, 5), dpi=100, facecolor='white')
         self.canvas = FigureCanvas(self.figure)
         self.layout.addWidget(self.canvas)
         
@@ -19,9 +19,15 @@ class Viewer3DWidget(QWidget):
         self.configure_axes()
 
     def configure_axes(self):
-        self.ax.set_facecolor('#2b2b2b')
-        self.ax.grid(False)
-        self.ax.set_axis_off() # Ocultar ejes para limpieza
+        self.ax.set_facecolor('white')
+        self.ax.grid(True, alpha=0.2, color='#bdc3c7')
+        # Mostrar ejes con estilo minimalista
+        self.ax.xaxis.pane.fill = False
+        self.ax.yaxis.pane.fill = False
+        self.ax.zaxis.pane.fill = False
+        self.ax.xaxis.pane.set_edgecolor('#ecf0f1')
+        self.ax.yaxis.pane.set_edgecolor('#ecf0f1')
+        self.ax.zaxis.pane.set_edgecolor('#ecf0f1')
         # Ajustar límites iniciales
         self.ax.set_xlim(-100, 100)
         self.ax.set_ylim(-100, 100)
@@ -50,10 +56,10 @@ class Viewer3DWidget(QWidget):
             vertices = mesh.vertices
             faces = mesh.faces
 
-            # Crear colección de polígonos
-            poly3d = art3d.Poly3DCollection(vertices[faces], alpha=0.8)
-            poly3d.set_facecolor('#0d6efd')
-            poly3d.set_edgecolor('#0a58ca')
+            # Crear colección de polígonos con colores neutros
+            poly3d = art3d.Poly3DCollection(vertices[faces], alpha=0.85)
+            poly3d.set_facecolor('#7f8c8d')
+            poly3d.set_edgecolor('#95a5a6')
             poly3d.set_linewidth(0.1)
 
             self.ax.add_collection3d(poly3d)
@@ -66,5 +72,5 @@ class Viewer3DWidget(QWidget):
             
         except Exception as e:
             print(f"Error al cargar modelo: {e}")
-            self.ax.text(0, 0, 0, "Error al cargar", color='red')
+            self.ax.text(0, 0, 0, "Error al cargar", color='#c0392b')
             self.canvas.draw()
