@@ -24,6 +24,20 @@ class InventoryWidget(QWidget):
 
         self.input_type = QComboBox()
         self.input_type.addItems(["PLA", "PETG", "ABS", "TPU", "ASA", "Otro"])
+        self.input_type.setStyleSheet("""
+            QComboBox {
+                background-color: #333333;
+                color: white;
+                border: 1px solid #444;
+                border-radius: 4px;
+                padding: 5px;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #333333;
+                color: white;
+                selection-background-color: #555;
+            }
+        """)
         form_layout.addWidget(self.input_type)
 
         self.input_color = QLineEdit()
