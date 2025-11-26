@@ -36,14 +36,14 @@ class LibraryWidget(QWidget):
         self.btn_add = QPushButton(" Añadir Modelo")
         self.btn_add.setStyleSheet("""
             QPushButton {
-                background-color: #007BFF;
+                background-color: #28a745;
                 color: white;
                 border-radius: 4px;
                 padding: 6px 12px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #1a8cff;
+                background-color: #218838;
             }
         """)
         self.btn_add.clicked.connect(self.add_model)

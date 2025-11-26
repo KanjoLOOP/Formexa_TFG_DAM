@@ -39,6 +39,18 @@ class InventoryWidget(QWidget):
         form_layout.addWidget(self.input_price)
 
         self.btn_add = QPushButton("Añadir")
+        self.btn_add.setStyleSheet("""
+            QPushButton {
+                background-color: #28a745;
+                color: white;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #218838;
+            }
+        """)
         self.btn_add.clicked.connect(self.add_filament)
         form_layout.addWidget(self.btn_add)
 
