@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QFrame, QGridLayout, QScrollArea)
+                             QFrame, QGridLayout, QScrollArea, QPushButton, QSizePolicy)
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -36,6 +37,19 @@ class HomeWidget(QWidget):
         
         # Panel derecho: Últimos proyectos
         projects_panel = self.create_projects_panel()
+        content_layout.addWidget(projects_panel, 1)
+        
+        main_layout.addLayout(content_layout)
+        
+        self.setLayout(main_layout)
+
+
+
+    def create_materials_panel(self):
+        """Panel con gráfico de materiales."""
+        panel = QFrame()
+        panel.setStyleSheet("""
+            QFrame {
                 background-color: #2a2a2a;
                 border-radius: 8px;
                 border: 1px solid #3a3a3a;
@@ -51,8 +65,11 @@ class HomeWidget(QWidget):
         layout.addWidget(title)
         
         # Gráfico donut
-        self.figure = Figure(figsize=(4, 4), dpi=80, facecolor='#2a2a2a')
+        # Gráfico donut
+        self.figure = Figure(figsize=(6, 6), dpi=100, facecolor='#2a2a2a')
+        self.figure.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1) # Reducir márgenes
         self.canvas = FigureCanvas(self.figure)
+        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.ax = self.figure.add_subplot(111)
         
         self.update_materials_chart()
@@ -82,8 +99,8 @@ class HomeWidget(QWidget):
             labels = list(material_data.keys())
             sizes = list(material_data.values())
             
-            # Colores discretos en escala de grises
-            colors = ['#6a6a6a', '#5a5a5a', '#4a4a4a', '#7a7a7a', '#8a8a8a']
+            # Colores discretos en escala de grises y acentos sutiles
+            colors = ['#00bcd4', '#0097a7', '#4dd0e1', '#26c6da', '#80deea'] # Tonos Cyan para dark mode
             
             # Crear donut chart
             wedges, texts, autotexts = self.ax.pie(
@@ -160,14 +177,15 @@ class HomeWidget(QWidget):
         item = QFrame()
         item.setStyleSheet("""
             QFrame {
-                background-color: #3a3a3a;
-                border-radius: 4px;
+                background-color: #333333;
+                border-radius: 6px;
                 padding: 8px;
-                margin: 2px 0;
-                border: none;
+                margin: 4px 0;
+                border: 1px solid #404040;
             }
             QFrame:hover {
-                background-color: #4a4a4a;
+                background-color: #404040;
+                border: 1px solid #505050;
             }
         """)
         
@@ -181,76 +199,31 @@ class HomeWidget(QWidget):
         
         # Nombre
         name_label = QLabel(name)
-        name_label.setStyleSheet("color: #e0e0e0; font-size: 13px; border: none;")
+        name_label.setStyleSheet("color: #e0e0e0; font-size: 14px; font-weight: 500; border: none;")
         layout.addWidget(name_label)
+        
+        layout.addStretch()
+        
+        # Botón de acción (simulado)
+        btn_open = QPushButton("Abrir")
+        btn_open.setCursor(Qt.PointingHandCursor)
+        btn_open.setStyleSheet("""
+            QPushButton {
+                background-color: #00bcd4;
+                color: #000000;
+                border-radius: 4px;
+                padding: 4px 12px;
+                font-weight: bold;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #26c6da;
+            }
+        """)
+        layout.addWidget(btn_open)
         
         layout.addStretch()
         
         return item
 
-    def create_stats_panel(self):
-        """Panel con estadísticas rápidas."""
-        panel = QFrame()
-        panel.setStyleSheet("""
-            QFrame {
-                background-color: #2a2a2a;
-                border-radius: 8px;
-                border: 1px solid #3a3a3a;
-            }
-        """)
-        
-        layout = QHBoxLayout(panel)
-        layout.setContentsMargins(15, 15, 15, 15)
-        
-        # Obtener estadísticas
-        filaments = self.inventory_manager.get_all_filaments()
-        models = self.library_manager.get_all_models()
-        
-        total_filaments = len(filaments) if filaments else 0
-        total_models = len(models) if models else 0
-        total_weight = sum(f['weight_current'] for f in filaments) if filaments else 0
-        
-        # Crear tarjetas de estadísticas
-        stats = [
-            ("🎨", "Materiales", str(total_filaments)),
-            ("📦", "Modelos", str(total_models)),
-            ("⚖️", "Stock Total", f"{total_weight:.0f}g")
-        ]
-        
-        for icon, label, value in stats:
-            stat_card = self.create_stat_card(icon, label, value)
-            layout.addWidget(stat_card)
-        
-        return panel
 
-    def create_stat_card(self, icon, label, value):
-        """Crea una tarjeta de estadística."""
-        card = QFrame()
-        card.setStyleSheet("""
-            QFrame {
-                background-color: #3a3a3a;
-                border-radius: 6px;
-                padding: 10px;
-                border: none;
-            }
-        """)
-        
-        layout = QVBoxLayout(card)
-        layout.setAlignment(Qt.AlignCenter)
-        
-        icon_label = QLabel(icon)
-        icon_label.setStyleSheet("font-size: 32px; border: none;")
-        icon_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(icon_label)
-        
-        value_label = QLabel(value)
-        value_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #e0e0e0; border: none;")
-        value_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(value_label)
-        
-        label_text = QLabel(label)
-        label_text.setStyleSheet("font-size: 12px; color: #b0b0b0; border: none;")
-        label_text.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label_text)
-        
-        return card

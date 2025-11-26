@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
-                             QListWidget, QFileDialog, QMessageBox, QSplitter)
+                             QListWidget, QFileDialog, QMessageBox, QSplitter, QLineEdit)
 from PyQt5.QtCore import Qt
 from src.logic.library_manager import LibraryManager
 from src.ui.viewer_3d import Viewer3DWidget
@@ -14,17 +14,58 @@ class LibraryWidget(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Toolbar superior con botones
+        # Toolbar superior con botones y búsqueda
         toolbar = QHBoxLayout()
-        self.btn_add = QPushButton("+ Añadir Modelo")
+        
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("🔍 Buscar modelo...")
+        self.search_input.setStyleSheet("""
+            QLineEdit {
+                padding: 6px;
+                border-radius: 4px;
+                border: 1px solid #404040;
+                background-color: #333333;
+                color: #e0e0e0;
+            }
+            QLineEdit:focus {
+                border: 1px solid #00bcd4;
+            }
+        """)
+        self.search_input.textChanged.connect(self.filter_list)
+        
+        self.btn_add = QPushButton(" Añadir Modelo")
+        self.btn_add.setStyleSheet("""
+            QPushButton {
+                background-color: #007BFF;
+                color: white;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1a8cff;
+            }
+        """)
         self.btn_add.clicked.connect(self.add_model)
+        
         self.btn_delete = QPushButton("Eliminar")
-        self.btn_delete.setStyleSheet("background-color: #8b0000; color: white;")
+        self.btn_delete.setStyleSheet("""
+            QPushButton {
+                background-color: #8b0000;
+                color: white;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #a00000;
+            }
+        """)
         self.btn_delete.clicked.connect(self.delete_model)
         
+        toolbar.addWidget(self.search_input, 1) # Search bar expands
         toolbar.addWidget(self.btn_add)
         toolbar.addWidget(self.btn_delete)
-        toolbar.addStretch()
         
         layout.addLayout(toolbar)
         
@@ -54,9 +95,18 @@ class LibraryWidget(QWidget):
     def refresh_list(self):
         """Recarga la lista de modelos desde la BD."""
         self.model_list.clear()
-        models = self.manager.get_all_models()
-        if models:
-            for model in models:
+        self.all_models = self.manager.get_all_models() # Store all models
+        self.filter_list(self.search_input.text())
+
+    def filter_list(self, text):
+        """Filtra la lista de modelos según el texto."""
+        self.model_list.clear()
+        if not hasattr(self, 'all_models') or not self.all_models:
+            return
+            
+        search_text = text.lower()
+        for model in self.all_models:
+            if search_text in model['name'].lower():
                 self.model_list.addItem(model['name'])
                 # Guardamos el ID en el item para referencia
                 item = self.model_list.item(self.model_list.count() - 1)

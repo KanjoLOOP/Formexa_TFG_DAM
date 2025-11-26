@@ -50,6 +50,7 @@ class InventoryWidget(QWidget):
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(["ID", "Marca", "Tipo", "Color", "Peso Restante (g)", "Precio (€)"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.verticalHeader().setVisible(False) # Ocultar barra lateral blanca (números de fila)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         layout.addWidget(self.table)
 
@@ -99,7 +100,14 @@ class InventoryWidget(QWidget):
             if success:
                 self.refresh_table()
                 self.clear_inputs()
-                QMessageBox.information(self, "Éxito", msg)
+                
+                # Popup personalizado con texto negro
+                msg_box = QMessageBox(self)
+                msg_box.setWindowTitle("Éxito")
+                msg_box.setText(msg)
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setStyleSheet("QLabel { color: black; }")
+                msg_box.exec_()
             else:
                 QMessageBox.warning(self, "Error", msg)
         except ValueError:

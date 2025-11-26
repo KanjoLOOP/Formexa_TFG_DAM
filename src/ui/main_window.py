@@ -24,9 +24,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         
         # Layout principal (Horizontal: Menú Lateral + Contenido)
+        # Layout principal (Horizontal: Menú Lateral + Contenido)
         main_layout = QHBoxLayout(central_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 20, 0) # Margen derecho para el contenido
+        main_layout.setSpacing(20) # Espacio entre menú y contenido
 
         # Menú Lateral
         self.side_menu = self.create_side_menu()
@@ -53,7 +54,8 @@ class MainWindow(QMainWindow):
         """Crea el panel lateral de navegación."""
         menu_frame = QFrame()
         menu_frame.setObjectName("SideMenu")
-        menu_frame.setFixedWidth(200)
+        menu_frame.setMinimumWidth(200)
+        menu_frame.setMaximumWidth(200) # Mantener fijo pero respetando el mínimo explícito
         
         layout = QVBoxLayout(menu_frame)
         layout.setContentsMargins(0, 0, 0, 0)
