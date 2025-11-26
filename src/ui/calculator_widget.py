@@ -18,9 +18,29 @@ class CalculatorWidget(QWidget):
         title.setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #e0e0e0;")
         layout.addWidget(title)
 
+        # === PARÁMETROS DE CÁLCULO (ARRIBA) ===
+        params_group = QGroupBox("Parámetros de Cálculo")
+        params_layout = QFormLayout()
+
+        self.input_price_kg = QLineEdit()
+        self.input_price_kg.setPlaceholderText("Ej: 20.00")
+        self.input_price_kg.setText("20")
+        params_layout.addRow("Precio del Filamento (€/kg):", self.input_price_kg)
+
+        self.input_power = QLineEdit()
+        self.input_power.setText("350")
+        params_layout.addRow("Consumo Impresora (Watts):", self.input_power)
+
+        self.input_energy_cost = QLineEdit()
+        self.input_energy_cost.setText("0.15")
+        params_layout.addRow("Coste Energía (€/kWh):", self.input_energy_cost)
+
+        params_group.setLayout(params_layout)
+        layout.addWidget(params_group)
+
         # === SECCIÓN PIEZA ===
         pieza_group = QGroupBox("Pieza")
-        pieza_group.setStyleSheet("QGroupBox { font-weight: bold; color: #a78bfa; }")
+        pieza_group.setStyleSheet("QGroupBox { font-weight: bold; color: #b0b0b0; }")
         pieza_layout = QFormLayout()
 
         # Tiempo de impresión (Horas y Minutos)
@@ -59,7 +79,7 @@ class CalculatorWidget(QWidget):
 
         # === SECCIÓN GANANCIA ===
         ganancia_group = QGroupBox("Ganancia")
-        ganancia_group.setStyleSheet("QGroupBox { font-weight: bold; color: #a78bfa; }")
+        ganancia_group.setStyleSheet("QGroupBox { font-weight: bold; color: #b0b0b0; }")
         ganancia_layout = QVBoxLayout()
 
         # Margen de ganancia (multiplicador)
@@ -72,7 +92,7 @@ class CalculatorWidget(QWidget):
 
         # Referencias
         ref_label = QLabel("Referencias:")
-        ref_label.setStyleSheet("color: #ff6b6b; font-weight: bold; margin-top: 10px;")
+        ref_label.setStyleSheet("color: #8b0000; font-weight: bold; margin-top: 10px;")
         ganancia_layout.addWidget(ref_label)
 
         ref_text = QLabel("Precio Minorista → 4\nPrecio Mayorista → 3\nPrecio Llaveros → 5")
@@ -82,44 +102,30 @@ class CalculatorWidget(QWidget):
         ganancia_group.setLayout(ganancia_layout)
         layout.addWidget(ganancia_group)
 
-        # === PARÁMETROS ADICIONALES ===
-        params_group = QGroupBox("Parámetros de Cálculo")
-        params_layout = QFormLayout()
-
-        self.input_price_kg = QLineEdit()
-        self.input_price_kg.setPlaceholderText("Ej: 20.00")
-        self.input_price_kg.setText("20")
-        params_layout.addRow("Precio del Filamento (€/kg):", self.input_price_kg)
-
-        self.input_power = QLineEdit()
-        self.input_power.setText("350")
-        params_layout.addRow("Consumo Impresora (Watts):", self.input_power)
-
-        self.input_energy_cost = QLineEdit()
-        self.input_energy_cost.setText("0.15")
-        params_layout.addRow("Coste Energía (€/kWh):", self.input_energy_cost)
-
-        params_group.setLayout(params_layout)
-        layout.addWidget(params_group)
-
         # Botón Calcular
         self.btn_calculate = QPushButton("Calcular Precio de Venta")
         self.btn_calculate.clicked.connect(self.calculate)
         self.btn_calculate.setStyleSheet("font-size: 14px; padding: 10px; font-weight: bold;")
         layout.addWidget(self.btn_calculate)
 
-        # === RESULTADOS ===
+        # === RESULTADOS (AL FINAL) ===
         results_group = QGroupBox("Resultados")
         results_layout = QVBoxLayout()
 
         self.lbl_filament_cost = QLabel("Coste Filamento: 0.00 €")
+        self.lbl_filament_cost.setStyleSheet("color: #e0e0e0;")
+        
         self.lbl_energy_cost = QLabel("Coste Energía: 0.00 €")
+        self.lbl_energy_cost.setStyleSheet("color: #e0e0e0;")
+        
         self.lbl_supplies_cost = QLabel("Coste Insumos: 0.00 €")
+        self.lbl_supplies_cost.setStyleSheet("color: #e0e0e0;")
+        
         self.lbl_total_cost = QLabel("COSTE TOTAL: 0.00 €")
-        self.lbl_total_cost.setStyleSheet("font-size: 16px; font-weight: bold; color: #fbbf24;")
+        self.lbl_total_cost.setStyleSheet("font-size: 16px; font-weight: bold; color: #b0b0b0;")
         
         self.lbl_sale_price = QLabel("PRECIO DE VENTA: 0.00 €")
-        self.lbl_sale_price.setStyleSheet("font-size: 18px; font-weight: bold; color: #10b981; margin-top: 10px;")
+        self.lbl_sale_price.setStyleSheet("font-size: 18px; font-weight: bold; color: #e0e0e0; margin-top: 10px;")
 
         results_layout.addWidget(self.lbl_filament_cost)
         results_layout.addWidget(self.lbl_energy_cost)
@@ -156,18 +162,21 @@ class CalculatorWidget(QWidget):
             # Calcular precio de venta
             sale_price = self.calculator.calculate_sale_price(total_cost, margin)
 
-            # Mostrar resultados
+            # Mostrar resultados con colores discretos
             self.lbl_filament_cost.setText(f"Coste Filamento: {filament_cost:.2f} €")
             self.lbl_energy_cost.setText(f"Coste Energía: {energy_cost:.2f} €")
             self.lbl_supplies_cost.setText(f"Coste Insumos: {supplies:.2f} €")
             self.lbl_total_cost.setText(f"COSTE TOTAL: {total_cost:.2f} €")
             self.lbl_sale_price.setText(f"PRECIO DE VENTA: {sale_price:.2f} €")
             
-            # Restaurar estilo
-            self.lbl_total_cost.setStyleSheet("font-size: 16px; font-weight: bold; color: #fbbf24;")
-            self.lbl_sale_price.setStyleSheet("font-size: 18px; font-weight: bold; color: #10b981; margin-top: 10px;")
+            # Restaurar estilos
+            self.lbl_filament_cost.setStyleSheet("color: #e0e0e0;")
+            self.lbl_energy_cost.setStyleSheet("color: #e0e0e0;")
+            self.lbl_supplies_cost.setStyleSheet("color: #e0e0e0;")
+            self.lbl_total_cost.setStyleSheet("font-size: 16px; font-weight: bold; color: #b0b0b0;")
+            self.lbl_sale_price.setStyleSheet("font-size: 18px; font-weight: bold; color: #e0e0e0; margin-top: 10px;")
 
         except ValueError:
             self.lbl_total_cost.setText("Error: Ingrese valores numéricos válidos")
-            self.lbl_total_cost.setStyleSheet("font-size: 16px; font-weight: bold; color: #ff6b6b;")
+            self.lbl_total_cost.setStyleSheet("font-size: 16px; font-weight: bold; color: #8b0000;")
             self.lbl_sale_price.setText("")
