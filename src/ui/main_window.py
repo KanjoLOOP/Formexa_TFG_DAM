@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QPushButton, QStackedWidget, QFrame, QLabel)
+                             QPushButton, QStackedWidget, QFrame, QLabel, QMessageBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
@@ -12,9 +12,12 @@ from src.ui.marketplace_widget import MarketplaceWidget
 from src.ui.settings_widget import SettingsWidget
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, auth_manager):
         super().__init__()
-        self.setWindowTitle("Gestor 3D")
+        self.auth_manager = auth_manager
+        self.user = auth_manager.get_current_user()
+        
+        self.setWindowTitle(f"Gestor 3D - {self.user['username']}")
         self.resize(1100, 750)
         
         # Cargar estilos
@@ -128,6 +131,16 @@ class MainWindow(QMainWindow):
 
     def switch_page(self, index, button):
         """Cambia la página visible y actualiza el estado de los botones."""
+        # Verificar permisos de invitado
+        if self.auth_manager.is_guest():
+            # Solo permitir calculadora (index 1)
+            if index != 1:
+                self.show_guest_restriction_message(index)
+                # Mantener en calculadora
+                self.content_area.setCurrentIndex(1)
+                self.btn_calc.setChecked(True)
+                return
+        
         self.content_area.setCurrentIndex(index)
         
         # Desmarcar todos los botones
@@ -136,3 +149,23 @@ class MainWindow(QMainWindow):
         
         # Marcar el botón actual
         button.setChecked(True)
+    
+    def show_guest_restriction_message(self, index):
+        """Muestra mensaje informando que la función requiere login."""
+        feature_names = {
+            0: "Dashboard",
+            2: "Biblioteca",
+            3: "Inventario",
+            4: "Marketplace",
+            5: "Configuración"
+        }
+        
+        feature_name = feature_names.get(index, "esta funcionalidad")
+        
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Inicio de sesión requerido")
+        msg_box.setText(f"Necesitas iniciar sesión para acceder a {feature_name}.")
+        msg_box.setInformativeText("El modo invitado solo permite usar la Calculadora de Costes.")
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.addButton("Aceptar", QMessageBox.AcceptRole)
+        msg_box.exec_()
