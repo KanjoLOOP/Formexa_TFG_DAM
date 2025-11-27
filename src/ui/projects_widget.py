@@ -410,15 +410,17 @@ class ProjectDialog(QDialog):
         self.model_combo.addItem("Sin modelo", None)
         models = self.library_manager.get_all_models()
         for model in models:
-            self.model_combo.addItem(model[1], model[0])  # name, id
+            # model es un diccionario o Row
+            self.model_combo.addItem(model['name'], model['id'])
     
     def load_filaments(self):
         """Carga los filamentos disponibles."""
         self.filament_combo.addItem("Sin filamento", None)
         filaments = self.inventory_manager.get_all_filaments()
         for filament in filaments:
-            display_text = f"{filament[1]} - {filament[2]} ({filament[3]})"  # brand, type, color
-            self.filament_combo.addItem(display_text, filament[0])  # id
+            # filament es un diccionario
+            display_text = f"{filament['brand']} - {filament['material_type']} ({filament['color']})"
+            self.filament_combo.addItem(display_text, filament['id'])
     
     def save_project(self):
         """Guarda el proyecto."""
