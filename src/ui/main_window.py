@@ -10,6 +10,7 @@ from src.ui.library_widget import LibraryWidget
 from src.ui.inventory_widget import InventoryWidget
 from src.ui.marketplace_widget import MarketplaceWidget
 from src.ui.settings_widget import SettingsWidget
+from src.ui.projects_widget import ProjectsWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, auth_manager):
@@ -76,17 +77,18 @@ class MainWindow(QMainWindow):
         self.btn_calc = self.create_menu_button("Calculadora", 1)
         self.btn_library = self.create_menu_button("Biblioteca", 2)
         self.btn_inventory = self.create_menu_button("Inventario", 3)
-        self.btn_market = self.create_menu_button("Marketplace", 4)
+        self.btn_projects = self.create_menu_button("Proyectos", 4)
+        self.btn_market = self.create_menu_button("Marketplace", 5)
 
         layout.addWidget(self.btn_home)
         layout.addWidget(self.btn_calc)
         layout.addWidget(self.btn_library)
         layout.addWidget(self.btn_inventory)
-        layout.addWidget(self.btn_inventory)
+        layout.addWidget(self.btn_projects)
         layout.addWidget(self.btn_market)
         
         # Configuración
-        self.btn_settings = self.create_menu_button("Configuración", 5)
+        self.btn_settings = self.create_menu_button("Configuración", 6)
         layout.addWidget(self.btn_settings)
         
         layout.addStretch()
@@ -113,6 +115,7 @@ class MainWindow(QMainWindow):
         self.calc_widget = CalculatorWidget()
         self.library_widget = LibraryWidget()
         self.inventory_widget = InventoryWidget()
+        self.projects_widget = ProjectsWidget(self.auth_manager)
         self.market_widget = MarketplaceWidget()
         self.settings_widget = SettingsWidget()
         
@@ -123,6 +126,7 @@ class MainWindow(QMainWindow):
         self.content_area.addWidget(self.calc_widget)
         self.content_area.addWidget(self.library_widget)
         self.content_area.addWidget(self.inventory_widget)
+        self.content_area.addWidget(self.projects_widget)
         self.content_area.addWidget(self.market_widget)
         self.content_area.addWidget(self.settings_widget)
 
@@ -144,7 +148,8 @@ class MainWindow(QMainWindow):
         self.content_area.setCurrentIndex(index)
         
         # Desmarcar todos los botones
-        for btn in [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory, self.btn_market, self.btn_settings]:
+        for btn in [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory, 
+                   self.btn_projects, self.btn_market, self.btn_settings]:
             btn.setChecked(False)
         
         # Marcar el botón actual
@@ -156,8 +161,9 @@ class MainWindow(QMainWindow):
             0: "Dashboard",
             2: "Biblioteca",
             3: "Inventario",
-            4: "Marketplace",
-            5: "Configuración"
+            4: "Proyectos",
+            5: "Marketplace",
+            6: "Configuración"
         }
         
         feature_name = feature_names.get(index, "esta funcionalidad")

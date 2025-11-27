@@ -43,17 +43,20 @@ CREATE TABLE IF NOT EXISTS models (
 CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    status TEXT DEFAULT 'Planificado', -- SQLite no tiene ENUM nativo, se maneja como TEXT
-    start_date DATETIME,
-    end_date DATETIME,
+    description TEXT,
+    status TEXT DEFAULT 'Pendiente',
+    weight_grams REAL,
+    print_time_hours REAL,
     total_cost REAL DEFAULT 0.00,
-    print_time_minutes INTEGER DEFAULT 0,
-    energy_cost REAL DEFAULT 0.00,
     filament_cost REAL DEFAULT 0.00,
+    energy_cost REAL DEFAULT 0.00,
     model_id INTEGER,
     filament_id INTEGER,
-    user_id INTEGER,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
     FOREIGN KEY (model_id) REFERENCES models(id) ON DELETE SET NULL,
     FOREIGN KEY (filament_id) REFERENCES filaments(id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+

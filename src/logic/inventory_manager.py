@@ -36,3 +36,9 @@ class InventoryManager:
         if self.db.execute_query(query, (filament_id,)):
             return True
         return False
+    
+    def get_filament_by_id(self, filament_id):
+        """Obtiene un filamento por ID."""
+        query = "SELECT * FROM filaments WHERE id = ?"
+        return self.db.fetch_one(query, (filament_id,))
+
