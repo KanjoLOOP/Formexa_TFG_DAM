@@ -11,6 +11,7 @@ from src.logic.auth_manager import AuthManager
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")  # Forzar estilo Fusion para mejor soporte QSS
     
     # Crear gestor de autenticación
     auth_manager = AuthManager()
