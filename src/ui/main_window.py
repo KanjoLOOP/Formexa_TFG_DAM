@@ -153,8 +153,8 @@ class MainWindow(QMainWindow):
         """Cambia la página visible y actualiza el estado de los botones."""
         # Verificar permisos de invitado
         if self.auth_manager.is_guest():
-            # Solo permitir calculadora (index 1)
-            if index != 1:
+            # Solo permitir calculadora (index 1) y configuración (index 6)
+            if index not in [1, 6]:
                 self.show_guest_restriction_message(index)
                 # Mantener en calculadora
                 self.content_area.setCurrentIndex(1)
@@ -178,13 +178,10 @@ class MainWindow(QMainWindow):
             2: "Biblioteca",
             3: "Inventario",
             4: "Proyectos",
-            5: "Marketplace",
-            6: "Configuración"
+            5: "Marketplace"
         }
         
         feature_name = feature_names.get(index, "esta funcionalidad")
         
-        feature_name = feature_names.get(index, "esta funcionalidad")
-        
         MessageBoxHelper.show_info(self, "Inicio de sesión requerido", 
-                                 f"Necesitas iniciar sesión para acceder a {feature_name}.\n\nEl modo invitado solo permite usar la Calculadora de Costes.")
+                                 f"Necesitas iniciar sesión para acceder a {feature_name}.\n\nEl modo invitado solo permite usar la Calculadora de Costes y la Configuración.")

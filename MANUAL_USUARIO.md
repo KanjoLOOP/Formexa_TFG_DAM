@@ -2,7 +2,7 @@
 
 ## Índice
 1. [Instalación](#instalación)
-2. [Inicio de la Aplicación](#inicio-de-la-aplicación)
+2. [Inicio de Sesión y Registro](#inicio-de-sesión-y-registro)
 3. [Módulos](#módulos)
 4. [Preguntas Frecuentes](#preguntas-frecuentes)
 
@@ -34,107 +34,125 @@
 
 ---
 
-## Inicio de la Aplicación
+## Inicio de Sesión y Registro
 
-Ejecutar desde la raíz del proyecto:
-```bash
-python src/main.py
-```
+Al abrir la aplicación, verás la pantalla de bienvenida.
 
-La aplicación se abrirá en una ventana con un menú lateral de navegación.
+### Crear una Cuenta
+1. Haz clic en el enlace **"¿No tienes cuenta? Regístrate aquí"**.
+2. Introduce un nombre de usuario y una contraseña.
+3. Haz clic en **"Registrarse"**.
+
+### Iniciar Sesión
+1. Introduce tu nombre de usuario y contraseña.
+2. Haz clic en **"Iniciar Sesión"**.
+
+### Modo Invitado
+Si solo quieres hacer un cálculo rápido sin guardar datos:
+1. Haz clic en **"Continuar como Invitado"**.
+2. Tendrás acceso limitado a la **Calculadora de Costes** y la **Configuración**.
+3. El resto de funciones (Inventario, Biblioteca, etc.) estarán bloqueadas.
 
 ---
 
 ## Módulos
 
 ### 1. Inicio (Dashboard)
-Pantalla de bienvenida con información general.
+Pantalla principal con un resumen de tu actividad:
+- Gráfico de uso de materiales.
+- Alertas de stock bajo.
+- Accesos directos a funciones recientes.
 
 ### 2. Calculadora de Costes
 
-**Objetivo**: Estimar el coste total de una impresión 3D.
+**Objetivo**: Estimar el coste total de una impresión 3D con precisión.
 
 **Cómo usar**:
-1. Introducir el **peso del modelo** en gramos (ej: 150g)
-2. Introducir el **precio del filamento** por kilogramo (ej: 20€/kg)
-3. Introducir el **tiempo de impresión** en horas (ej: 5.5h)
-4. Ajustar el **consumo de la impresora** en Watts (por defecto: 350W)
-5. Ajustar el **coste de la energía** (por defecto: 0.15€/kWh)
-6. Hacer clic en **"Calcular Coste Total"**
 
-**Resultado**: Se mostrará el desglose de costes (filamento + energía) y el total.
+#### Método Automático (Importar G-code)
+1. Haz clic en el botón verde **"Importar G-code (Cura/Prusa)"**.
+2. Selecciona un archivo `.gcode` generado por tu slicer (Cura o PrusaSlicer).
+3. La aplicación rellenará automáticamente el **Tiempo de Impresión** y el **Peso**.
+
+#### Método Manual
+1. Introduce el **peso del modelo** en gramos.
+2. Introduce el **tiempo de impresión** (horas y minutos).
+
+#### Configuración de Costes
+1. Ajusta el **precio del filamento** (€/kg).
+2. Ajusta el **consumo de la impresora** (Watts).
+3. Ajusta el **coste de la energía** (€/kWh).
+4. Añade **insumos extra** si es necesario (laca, electricidad extra, post-procesado).
+
+#### Resultados y Exportación
+1. Haz clic en **"CALCULAR RESULTADOS"**.
+2. Verás el desglose de costes y el precio de venta sugerido.
+3. Para guardar un informe, haz clic en **"EXPORTAR PDF"**.
 
 ---
 
 ### 3. Biblioteca de Modelos 3D
 
-**Objetivo**: Organizar y visualizar archivos STL.
+**Objetivo**: Organizar y visualizar tus archivos STL.
 
 **Cómo usar**:
-1. Hacer clic en **"Añadir Modelo"**
-2. Seleccionar un archivo `.stl` desde tu ordenador
-3. El modelo se copiará a la biblioteca y aparecerá en la lista
-4. **Hacer clic en un modelo** de la lista para visualizarlo en 3D
-5. Para eliminar: seleccionar modelo y hacer clic en **"Eliminar"**
-
-**Visor 3D**: 
-- Rotación automática al cargar
-- Zoom y pan disponibles (controles de Matplotlib)
+1. Haz clic en **"Añadir Modelo"** y selecciona un archivo `.stl`.
+2. El modelo se guardará en tu biblioteca.
+3. **Haz clic en un modelo** de la lista para verlo en el **Visor 3D** integrado.
+4. Puedes rotar y hacer zoom en el modelo para inspeccionarlo.
 
 ---
 
 ### 4. Inventario de Filamentos
 
-**Objetivo**: Controlar el stock de materiales.
+**Objetivo**: Controlar el stock de tus materiales.
 
 **Cómo usar**:
-
-#### Añadir Filamento
-1. Rellenar el formulario superior:
-   - **Marca**: Fabricante (ej: Prusament, eSun)
-   - **Tipo**: Material (PLA, PETG, ABS, etc.)
-   - **Color**: Color del filamento
-   - **Peso**: Peso inicial en gramos (ej: 1000g)
-   - **Precio**: Coste del rollo en euros
-2. Hacer clic en **"Añadir"**
-
-#### Eliminar Filamento
-1. Seleccionar una fila de la tabla
-2. Hacer clic en **"Eliminar Seleccionado"**
+- **Añadir**: Rellena los datos del rollo (Marca, Tipo, Color, Peso, Precio) y pulsa "Añadir".
+- **Buscar**: Usa la barra de búsqueda para filtrar por color o material.
+- **Eliminar**: Selecciona una fila y pulsa "Eliminar Seleccionado".
 
 ---
 
-### 5. Marketplace
+### 5. Proyectos
 
-**Objetivo**: Explorar modelos 3D disponibles (simulado).
+**Objetivo**: Gestionar tus trabajos de impresión.
+- Crea proyectos para organizar tus impresiones.
+- Asigna modelos y materiales a cada proyecto.
+- Lleva un seguimiento del estado (Pendiente, En Progreso, Completado).
 
-**Cómo usar**:
-1. Navegar por las tarjetas de modelos
-2. Hacer clic en **"Obtener"** o **"Comprar"**
-3. Aparecerá un mensaje de confirmación (simulación)
+---
 
-> **Nota**: En esta versión, el marketplace es una demostración. Los modelos no se descargan realmente.
+### 6. Marketplace
+
+**Objetivo**: Explorar y descargar modelos 3D (Simulación).
+- Navega por el catálogo de modelos disponibles.
+- Simula la compra o descarga de diseños de la comunidad.
+
+---
+
+### 7. Configuración
+
+**Objetivo**: Personalizar la aplicación.
+- **Idioma**: Cambia entre Español, Inglés y Francés.
+- **Sesión**: Cierra sesión o cambia de usuario.
+- **Reportar Error**: Envía comentarios sobre problemas encontrados.
 
 ---
 
 ## Preguntas Frecuentes
 
-### ¿Dónde se guardan los archivos STL?
-En la carpeta `assets/models/` dentro del proyecto.
+### ¿Qué slicers son compatibles con la importación?
+Actualmente soportamos archivos G-code generados por **Ultimaker Cura** y **PrusaSlicer** (incluyendo derivados como OrcaSlicer y BambuStudio).
 
-### ¿Puedo usar la aplicación sin conexión a Internet?
-Sí, la aplicación funciona completamente offline (excepto el marketplace simulado).
+### ¿Dónde se guardan mis datos?
+Todos los datos se guardan localmente en un archivo `gestor3d.db` en la carpeta del proyecto.
 
-### ¿Cómo actualizo el peso restante de un filamento?
-Actualmente, el peso se actualiza manualmente. En futuras versiones se integrará con proyectos para restar automáticamente.
+### ¿Puedo usar la aplicación sin internet?
+Sí, es totalmente funcional offline.
 
-### ¿Qué formatos de archivo 3D soporta?
-Actualmente solo archivos `.stl` (estándar en impresión 3D).
-
-### La aplicación no inicia, ¿qué hago?
-1. Verificar que todas las dependencias estén instaladas: `pip install -r requirements.txt`
-2. Comprobar la versión de Python: `python --version` (debe ser 3.8+)
-3. Revisar errores en la terminal
+### ¿Cómo actualizo el stock de un filamento?
+Actualmente es manual, pero estamos trabajando en que se reste automáticamente al confirmar un proyecto.
 
 ---
 

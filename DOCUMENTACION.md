@@ -11,7 +11,7 @@ Desarrollar una aplicación de escritorio multiplataforma que permita a los usua
 - **Visor 3D**: Integrar visualización de modelos (STL) mediante librerías como Trimesh, Pyglet u Open3D.
 - **Inventario**: Módulo para registrar rollos de filamento (peso, precio, fabricante, remanente).
 - **Marketplace**: Función para simular compra/venta de modelos 3D.
-- **Persistencia**: Uso de MySQL para garantizar integridad y escalabilidad.
+- **Persistencia**: Uso de SQLite para garantizar portabilidad y simplicidad.
 - **Interfaz**: Diseño moderno e intuitivo con PyQt5.
 
 ## 2. Fundamentos Teóricos
@@ -19,8 +19,9 @@ Desarrollar una aplicación de escritorio multiplataforma que permita a los usua
 ### Tecnologías Seleccionadas
 - **Python 3**: Elegido por su versatilidad y amplio ecosistema.
 - **PyQt5**: Framework robusto para interfaces de escritorio modernas.
-- **MySQL**: Base de datos relacional para gestión multiusuario y escalable.
-- **Librerías 3D**: Trimesh/Numpy-STL/Pyglet para el procesamiento y renderizado de geometría 3D.
+- **SQLite**: Base de datos relacional ligera y sin servidor, ideal para escritorio.
+- **Librerías 3D**: Trimesh y Matplotlib para el procesamiento y renderizado de geometría 3D.
+- **ReportLab**: Para la generación profesional de informes PDF.
 
 ### Metodología
 El desarrollo seguirá un enfoque **Ágil (SCRUM)**, con entregas incrementales:

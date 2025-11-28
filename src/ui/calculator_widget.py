@@ -5,12 +5,14 @@ from src.ui.utils import MessageBoxHelper
 from PyQt5.QtCore import Qt
 from src.logic.cost_calculator import CostCalculator
 from src.logic.report_generator import ReportGenerator
+from src.logic.slicer_parser import SlicerParser
 
 class CalculatorWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.calculator = CostCalculator()
         self.report_generator = ReportGenerator()
+        self.slicer_parser = SlicerParser()
         self.last_calculation = None
         self.init_ui()
 
@@ -53,6 +55,25 @@ class CalculatorWidget(QWidget):
         pieza_layout.setSpacing(20)
         pieza_layout.setContentsMargins(15, 25, 15, 15)
 
+        # Botón Importar G-code
+        self.btn_import_gcode = QPushButton("Importar G-code (Cura/Prusa)")
+        self.btn_import_gcode.setCursor(Qt.PointingHandCursor)
+        self.btn_import_gcode.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """)
+        self.btn_import_gcode.clicked.connect(self.import_gcode)
+        pieza_layout.addWidget(self.btn_import_gcode, 0, 0, 1, 3) # Ocupa todo el ancho arriba
+
         # Tiempo (H/Min)
         time_widget = QWidget()
         time_box = QHBoxLayout(time_widget)
@@ -72,14 +93,14 @@ class CalculatorWidget(QWidget):
         time_box.addWidget(self.input_hours)
         time_box.addWidget(self.input_minutes)
         
-        pieza_layout.addLayout(self.create_v_input("Tiempo de Impresión:", time_widget), 0, 0)
+        pieza_layout.addLayout(self.create_v_input("Tiempo de Impresión:", time_widget), 1, 0)
 
         self.input_weight = QLineEdit()
         self.input_weight.setPlaceholderText("Ej: 157")
-        pieza_layout.addLayout(self.create_v_input("Peso (g):", self.input_weight), 0, 1)
+        pieza_layout.addLayout(self.create_v_input("Peso (g):", self.input_weight), 1, 1)
 
         self.input_supplies = QLineEdit("0")
-        pieza_layout.addLayout(self.create_v_input("Insumos Extra (€):", self.input_supplies), 0, 2)
+        pieza_layout.addLayout(self.create_v_input("Insumos Extra (€):", self.input_supplies), 1, 2)
 
         pieza_group.setLayout(pieza_layout)
         main_layout.addWidget(pieza_group, 1)
@@ -213,6 +234,40 @@ class CalculatorWidget(QWidget):
         # Guardamos referencia al label de valor para actualizarlo luego
         card.value_label = lbl_val 
         return card
+
+    def import_gcode(self):
+        """Abre diálogo para importar G-code y rellena los campos."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Importar G-code", "", "G-code Files (*.gcode *.gco);;All Files (*)"
+        )
+        
+        if not file_path:
+            return
+            
+        data = self.slicer_parser.parse_file(file_path)
+        
+        if not data:
+            MessageBoxHelper.show_warning(self, "Error de Importación", 
+                                        "No se pudieron encontrar metadatos válidos en el archivo G-code.\n"
+                                        "Asegúrate de que fue generado por Cura o PrusaSlicer.")
+            return
+            
+        # Rellenar campos
+        if 'print_time_seconds' in data:
+            total_seconds = data['print_time_seconds']
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            self.input_hours.setValue(int(hours))
+            self.input_minutes.setValue(int(minutes))
+            
+        if 'filament_weight_g' in data:
+            self.input_weight.setText(f"{data['filament_weight_g']:.2f}")
+            
+        slicer = data.get('slicer_name', 'Desconocido')
+        MessageBoxHelper.show_info(self, "Importación Exitosa", 
+                                 f"Datos importados correctamente desde {slicer}.\n"
+                                 f"Tiempo: {int(hours)}h {int(minutes)}m\n"
+                                 f"Peso: {data.get('filament_weight_g', 0):.2f}g")
 
     def calculate(self):
         try:

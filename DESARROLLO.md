@@ -2,6 +2,28 @@
 
 ## Registro de Cambios
 
+### Versión 0.2.0 (28/11/2025)
+
+#### Autenticación y Seguridad
+- ✅ Sistema de Login y Registro de usuarios
+- ✅ Gestión de sesiones con `AuthManager`
+- ✅ **Modo Invitado**: Implementación de restricciones de acceso en `MainWindow`
+- ✅ Hashing de contraseñas con SHA-256
+
+#### Nuevas Funcionalidades
+- ✅ **Integración con Slicers**:
+  - Clase `SlicerParser` para analizar G-code
+  - Soporte para Cura (tiempo, longitud) y PrusaSlicer (tiempo, peso, coste)
+  - Estimación inteligente de peso basada en longitud
+- ✅ **Exportación PDF**:
+  - Clase `ReportGenerator` usando `reportlab`
+  - Generación de informes de costes profesionales
+- ✅ **Mejoras en UI**:
+  - Botón de importación en Calculadora
+  - Pestaña de Configuración funcional
+
+---
+
 ### Versión 0.1.0 (26/11/2025)
 
 #### Configuración Inicial
@@ -33,6 +55,7 @@
   - Cálculo de coste de filamento (peso × precio/kg)
   - Cálculo de coste energético (potencia × tiempo × tarifa)
   - Coste total agregado
+  - **[NUEVO]** Importación de G-code y Exportación PDF
 
 ##### 2. Biblioteca y Visor 3D
 - **Lógica**: `LibraryManager` para gestión de archivos STL
@@ -69,7 +92,10 @@ Gestor3D/
 │   ├── logic/
 │   │   ├── cost_calculator.py
 │   │   ├── library_manager.py
-│   │   └── inventory_manager.py
+│   │   ├── inventory_manager.py
+│   │   ├── auth_manager.py  # [NUEVO] Gestor de auth
+│   │   ├── slicer_parser.py # [NUEVO] Parser G-code
+│   │   └── report_generator.py # [NUEVO] Generador PDF
 │   └── ui/
 │       ├── main_window.py
 │       ├── home_widget.py
@@ -77,6 +103,7 @@ Gestor3D/
 │       ├── library_widget.py
 │       ├── inventory_widget.py
 │       ├── marketplace_widget.py
+│       ├── login_widget.py  # [NUEVO]
 │       └── viewer_3d.py
 ├── assets/
 │   ├── styles.qss           # Estilos globales
@@ -102,8 +129,8 @@ Se eligió Matplotlib para el visor 3D porque:
 - Renderizado adecuado para archivos STL simplificados
 
 ## Próximas Mejoras
-- [ ] Autenticación de usuarios
-- [ ] Exportación de informes PDF
-- [ ] Integración con slicers (Cura, PrusaSlicer)
 - [ ] Marketplace real con API externa
-- [ ] Gráficos de consumo y estadísticas
+- [ ] Gráficos de consumo y estadísticas avanzados
+- [ ] Sincronización en la nube
+- [ ] Sistema de plugins
+

@@ -16,9 +16,16 @@
 
 ## Características
 
+### Autenticación y Seguridad
+- Sistema de Login y Registro
+- **Modo Invitado**: Acceso limitado a la Calculadora y Configuración
+- Gestión de sesiones de usuario
+
 ### Calculadora de Costes
 - Cálculo automático de coste de filamento
+- **Importación de G-code**: Carga automática de datos desde Cura y PrusaSlicer
 - Estimación de consumo energético
+- **Exportación a PDF**: Generación de informes detallados
 - Desglose detallado de gastos
 
 ### Biblioteca de Modelos
@@ -87,7 +94,7 @@ Gestor3D/
 ```
 
 ## Estado del Proyecto
-**Versión Actual**: 0.1.0 (MVP)
+**Versión Actual**: 0.2.0 (Beta)
 
 ### Completado 
 - [x] Interfaz gráfica con navegación
@@ -96,13 +103,14 @@ Gestor3D/
 - [x] Inventario CRUD
 - [x] Marketplace simulado
 - [x] Dashboard con notificaciones inteligentes
+- [x] Autenticación de usuarios y Modo Invitado
+- [x] Exportación de informes PDF
+- [x] Integración con slicers (Cura, PrusaSlicer)
 
 ### Próximas Mejoras 
-- [ ] Autenticación de usuarios
-- [ ] Exportación de informes PDF
-- [ ] Integración con slicers (Cura, PrusaSlicer)
 - [ ] Marketplace real con API
-- [ ] Gráficos de estadísticas
+- [ ] Gráficos de estadísticas avanzados
+- [ ] Sincronización en la nube
 
 ##  Autor
 Desarrollado como Trabajo de Fin de Grado (TFG) - DAM
