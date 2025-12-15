@@ -1,4 +1,4 @@
--- Script de creación de base de datos para Gestor 3D (SQLite)
+-- Script de creación de base de datos para Formexa (SQLite)
 
 -- Tabla de Usuarios
 CREATE TABLE IF NOT EXISTS users (

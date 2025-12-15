@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 
 class ReportGenerator:
-    """Generador de informes PDF para Gestor 3D."""
+    """Generador de informes PDF para Formexa."""
     
     def __init__(self):
         self.styles = getSampleStyleSheet()
@@ -108,7 +108,7 @@ class ReportGenerator:
         
         # Pie de página
         elements.append(Spacer(1, 40))
-        elements.append(Paragraph("Generado por Gestor 3D", self.styles['NormalCustom']))
+        elements.append(Paragraph("Generado por Formexa", self.styles['NormalCustom']))
         
         doc.build(elements)
         return True
@@ -150,7 +150,7 @@ class ReportGenerator:
         
         # Pie de página
         elements.append(Spacer(1, 40))
-        elements.append(Paragraph("Generado por Gestor 3D", self.styles['NormalCustom']))
+        elements.append(Paragraph("Generado por Formexa", self.styles['NormalCustom']))
         
         doc.build(elements)
         return True

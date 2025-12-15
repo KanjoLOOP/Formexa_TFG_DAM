@@ -1,4 +1,4 @@
-# Manual de Usuario - Gestor 3D
+# Manual de Usuario - Formexa
 
 ## Índice
 1. [Instalación](#instalación)
@@ -19,7 +19,7 @@
 1. **Clonar el repositorio**
    ```bash
    git clone https://github.com/KanjoLOOP/TFG_DAM.git
-   cd Gestor3D
+   cd Formexa
    ```
 
 2. **Instalar dependencias**

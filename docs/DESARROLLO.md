@@ -1,4 +1,4 @@
-# Documentación de Desarrollo - Gestor 3D
+# Documentación de Desarrollo - Formexa
 
 ## Registro de Cambios
 
@@ -83,7 +83,7 @@
 ## Arquitectura del Código
 
 ```
-Gestor3D/
+Formexa/
 ├── src/
 │   ├── main.py              # Punto de entrada
 │   ├── database/

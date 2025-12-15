@@ -22,7 +22,7 @@ class HomeWidget(QWidget):
         main_layout.setContentsMargins(20, 20, 20, 20)
         
         # Título de bienvenida
-        welcome_label = QLabel("Bienvenido a Gestor 3D")
+        welcome_label = QLabel("Bienvenido a Formexa")
         welcome_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #b0b0b0; margin-bottom: 10px;")
         main_layout.addWidget(welcome_label)
         

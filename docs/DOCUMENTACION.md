@@ -1,4 +1,4 @@
-# Documentación del Proyecto: Gestor 3D
+# Documentación del Proyecto: Formexa
 
 ## 1. Objetivos
 

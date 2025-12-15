@@ -33,7 +33,7 @@ class LoginWidget(QWidget):
         container_layout.setContentsMargins(40, 40, 40, 40)
         
         # Título
-        title = QLabel("Gestor 3D")
+        title = QLabel("Formexa")
         title.setStyleSheet("font-size: 32px; font-weight: bold; color: white;")
         title.setAlignment(Qt.AlignCenter)
         container_layout.addWidget(title)

@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.auth_manager = auth_manager
         self.user = auth_manager.get_current_user()
         
-        self.setWindowTitle(f"Gestor 3D - {self.user['username']}")
+        self.setWindowTitle(f"Formexa - {self.user['username']}")
         self.resize(1100, 750)
         
         # Cargar estilos
@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(0)
 
         # Título / Logo
-        title_label = QLabel("Gestor 3D")
+        title_label = QLabel("Formexa")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 20px; font-weight: bold; padding: 20px; color: #b0b0b0;")
         layout.addWidget(title_label)

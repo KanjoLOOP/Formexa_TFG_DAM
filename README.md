@@ -1,11 +1,11 @@
-# Gestor 3D
+# Formexa
 
 ![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
 ![Versión](https://img.shields.io/badge/Versión-0.1.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-green)
 
 ## Descripción
-**Gestor 3D** es una aplicación de escritorio multiplataforma diseñada para entusiastas y profesionales de la impresión 3D. Permite gestionar proyectos, calcular costes de impresión, organizar una biblioteca de modelos con visualización 3D integrada, controlar el inventario de filamentos y acceder a un marketplace de diseños.
+**Formexa** es una aplicación de escritorio multiplataforma diseñada para entusiastas y profesionales de la impresión 3D. Permite gestionar proyectos, calcular costes de impresión, organizar una biblioteca de modelos con visualización 3D integrada, controlar el inventario de filamentos y acceder a un marketplace de diseños.
 
 ## Objetivos del Proyecto
 - **Gestión Integral**: Centralizar proyectos, materiales y costes en una sola aplicación
@@ -63,7 +63,7 @@
 ```bash
 # Clonar el repositorio
 git clone https://github.com/KanjoLOOP/TFG_DAM.git
-cd Gestor3D
+cd Formexa
 
 # Instalar dependencias
 pip install -r requirements.txt
@@ -73,13 +73,13 @@ python src/main.py
 ```
 
 ## Documentación
-- [Manual de Usuario](MANUAL_USUARIO.md) - Guía completa de uso
-- [Documentación de Desarrollo](DESARROLLO.md) - Arquitectura y decisiones técnicas
-- [Fundamentos Teóricos](DOCUMENTACION.md) - Objetivos y metodología
+- [Manual de Usuario](docs/MANUAL_USUARIO.md) - Guía completa de uso
+- [Documentación de Desarrollo](docs/DESARROLLO.md) - Arquitectura y decisiones técnicas
+- [Fundamentos Teóricos](docs/DOCUMENTACION.md) - Objetivos y metodología
 
 ## Estructura del Proyecto
 ```
-Gestor3D/
+Formexa/
 ├── src/
 │   ├── main.py              # Punto de entrada
 │   ├── database/            # Esquema y gestor de BD
@@ -88,8 +88,10 @@ Gestor3D/
 ├── assets/
 │   ├── styles.qss           # Estilos
 │   └── models/              # Biblioteca de STL
-├── MANUAL_USUARIO.md
-├── DESARROLLO.md
+├── docs/
+│   ├── MANUAL_USUARIO.md
+│   ├── DESARROLLO.md
+│   └── DOCUMENTACION.md
 └── requirements.txt
 ```
 
