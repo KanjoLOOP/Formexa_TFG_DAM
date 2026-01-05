@@ -23,11 +23,13 @@ class HomeWidget(QWidget):
         
         # Título de bienvenida
         welcome_label = QLabel("Bienvenido a Formexa")
-        welcome_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #b0b0b0; margin-bottom: 10px;")
+        welcome_label.setAlignment(Qt.AlignCenter)
+        welcome_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #b0b0b0; margin-bottom: 5px;")
         main_layout.addWidget(welcome_label)
         
         subtitle = QLabel("Tu centro de control para impresión 3D")
-        subtitle.setStyleSheet("font-size: 14px; color: #808080; margin-bottom: 20px;")
+        subtitle.setAlignment(Qt.AlignCenter)
+        subtitle.setStyleSheet("font-size: 14px; color: #808080; margin-bottom: 25px;")
         main_layout.addWidget(subtitle)
         
         # Layout horizontal para gráfico y proyectos

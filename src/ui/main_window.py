@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QStackedWidget, QFrame, QLabel, QMessageBox)
 from src.ui.utils import MessageBoxHelper
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 
 from src.ui.home_widget import HomeWidget
 from src.ui.calculator_widget import CalculatorWidget
@@ -70,10 +70,26 @@ class MainWindow(QMainWindow):
         layout.setSpacing(0)
 
         # Título / Logo
-        title_label = QLabel("Formexa")
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 20px; font-weight: bold; padding: 20px; color: #b0b0b0;")
-        layout.addWidget(title_label)
+        logo_label = QLabel()
+        
+        # Usar ruta absoluta para asegurar que se encuentra la imagen
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        logo_path = os.path.join(base_path, 'assets', 'logo.png')
+        
+        logo_pixmap = QPixmap(logo_path)
+        if not logo_pixmap.isNull():
+            # Escalar el logo proporcionalmente
+            scaled_pixmap = logo_pixmap.scaled(180, 180, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            logo_label.setPixmap(scaled_pixmap)
+            logo_label.setAlignment(Qt.AlignCenter)
+            logo_label.setStyleSheet("padding: 20px 10px 10px 10px;") # Padding para separar
+        else:
+            # Fallback a texto si falla la imagen
+            logo_label.setText("Formexa")
+            logo_label.setAlignment(Qt.AlignCenter)
+            logo_label.setStyleSheet("font-size: 20px; font-weight: bold; padding: 20px; color: #b0b0b0;")
+        
+        layout.addWidget(logo_label)
 
         # Botones de navegación
         self.btn_home = self.create_menu_button("Inicio", 0)

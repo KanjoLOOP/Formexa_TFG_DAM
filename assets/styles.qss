@@ -61,10 +61,7 @@ QHeaderView::section {
 }
 
 /* Menú Lateral */
-QFrame#SideMenu {
-    background-color: #252525;
-    border-right: 1px solid #1a1a1a;
-}
+/* Menú Lateral - Definición única en la sección inferior */
 
 QPushButton#MenuButton {
     text-align: left;
@@ -243,7 +240,7 @@ QPushButton.ModernButton {
 
 /* Menú Lateral Refinado */
 QFrame#SideMenu {
-    background-color: #1a1a1a; /* Más oscuro */
+    background-color: #1a1a1a; /* Dark Sidebar */
     border-right: 1px solid #2a2a2a;
 }
 
