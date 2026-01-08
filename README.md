@@ -47,6 +47,7 @@
 - Aviso de filamentos con poco material (<20%)
 - Resumen de actividad mensual y modelos recientes
 
+
 ## Tecnologías
 - **Lenguaje**: Python 3.8+
 - **Interfaz**: PyQt5
@@ -73,9 +74,9 @@ python src/main.py
 ```
 
 ## Documentación
-- [Manual de Usuario](docs/MANUAL_USUARIO.md) - Guía completa de uso
-- [Documentación de Desarrollo](docs/DESARROLLO.md) - Arquitectura y decisiones técnicas
-- [Fundamentos Teóricos](docs/DOCUMENTACION.md) - Objetivos y metodología
+- [Manual de Usuario](MANUAL_USUARIO.md) - Guía completa de uso
+- [Documentación de Desarrollo](DESARROLLO.md) - Arquitectura y decisiones técnicas
+- [Fundamentos Teóricos](DOCUMENTACION.md) - Objetivos y metodología
 
 ## Estructura del Proyecto
 ```
@@ -88,7 +89,11 @@ Formexa/
 ├── assets/
 │   ├── styles.qss           # Estilos
 │   └── models/              # Biblioteca de STL
-├── docs/
+├── data/
+│   ├── gestor3d.db          # Base de datos
+│   └── session.json         # Sesión (no versionado)
+├── scripts/                 # Scripts de mantenimiento
+├── Documentación/
 │   ├── MANUAL_USUARIO.md
 │   ├── DESARROLLO.md
 │   └── DOCUMENTACION.md
@@ -117,4 +122,23 @@ Formexa/
 ##  Autor
 Desarrollado como Trabajo de Fin de Grado (TFG) - DAM
 
+## Galería del Proyecto
+
+Aquí puedes ver algunas capturas de la aplicación en funcionamiento:
+
+| Login | Dashboard |
+|:---:|:---:|
+| **Sistema de Acceso**<br>![Login](assets/screenshots/login.png) | **Inicio**<br>![Dashboard](assets/screenshots/dashboard.png) |
+
+| Calculadora de Costes | Biblioteca 3D |
+|:---:|:---:|
+| **Estimación Precisa**<br>![Calculadora](assets/screenshots/calculadora.png) | **Visor Integrado**<br>![Biblioteca](assets/screenshots/biblioteca.png) |
+
+| Inventario | Marketplace |
+|:---:|:---:|
+| **Gestión de Stock**<br>![Inventario](assets/screenshots/inventario.png) | **Descarga de Modelos**<br>![Marketplace](assets/screenshots/marketplace.png) |
+
+| Proyectos | Configuración |
+|:---:|:---:|
+| **Organización**<br>![Proyectos](assets/screenshots/proyectos.png) | **Preferencias**<br>![Configuración](assets/screenshots/configuracion.png) |
 
