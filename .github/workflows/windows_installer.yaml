@@ -36,6 +36,7 @@ jobs:
         # Generate the executable using cli args directly to be safe
         # Assuming asset conversion happens in build_exe.py or icons are already committed.
         # Here we use the direct command as requested, pointing to main.py
+        pip install pyinstaller
         python -m PyInstaller --noconfirm --onefile --windowed --clean \
           --name "Gestor3D" \
           --icon "assets/app_icon.ico" \
