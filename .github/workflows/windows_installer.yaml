@@ -2,7 +2,7 @@ name: Windows Installer
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   workflow_dispatch:
   release:
     types: [published]
@@ -58,14 +58,14 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
         # Pull latest to avoid conflicts
-        git pull origin main --rebase || true
+        git pull origin master --rebase || true
         
         mkdir -p docs/releases
         cp installer_output/Gestor3D_Setup.exe docs/releases/Gestor3D_Setup.exe
         
         git add -f docs/releases/Gestor3D_Setup.exe
         git commit -m "deploy: update windows release [skip ci]" || echo "No changes to commit"
-        git push origin main
+        git push origin master
 
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
