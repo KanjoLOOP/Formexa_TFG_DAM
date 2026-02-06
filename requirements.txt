@@ -1,7 +1,9 @@
-PyQt5
-trimesh
-pyglet
+matplotlib
 numpy
-scipy
 open3d
+pillow
+pyinstaller
+PyQt5
 reportlab>=4.0.0
+scipy
+trimesh
