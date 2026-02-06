@@ -42,8 +42,26 @@ class InventoryWidget(QWidget):
         """)
         form_layout.addWidget(self.input_type)
 
-        self.input_color = QLineEdit()
-        self.input_color.setPlaceholderText("Color")
+        self.input_color = QComboBox()
+        self.input_color.addItems([
+            "Negro", "Blanco", "Gris", "Plateado", "Rojo", "Azul", 
+            "Verde", "Amarillo", "Naranja", "Morado", "Rosa", 
+            "Marrón", "Transparente", "Oro", "Cobre", "Bronce", "Otro"
+        ])
+        self.input_color.setStyleSheet("""
+            QComboBox {
+                background-color: #333333;
+                color: white;
+                border: 1px solid #444;
+                border-radius: 4px;
+                padding: 5px;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #333333;
+                color: white;
+                selection-background-color: #555;
+            }
+        """)
         form_layout.addWidget(self.input_color)
 
         self.input_weight = QLineEdit()
@@ -124,7 +142,7 @@ class InventoryWidget(QWidget):
     def add_filament(self):
         brand = self.input_brand.text()
         m_type = self.input_type.currentText()
-        color = self.input_color.text()
+        color = self.input_color.currentText()
         weight = self.input_weight.text()
         price = self.input_price.text()
 
@@ -193,6 +211,6 @@ class InventoryWidget(QWidget):
 
     def clear_inputs(self):
         self.input_brand.clear()
-        self.input_color.clear()
+        self.input_color.setCurrentIndex(0)
         self.input_weight.clear()
         self.input_price.clear()

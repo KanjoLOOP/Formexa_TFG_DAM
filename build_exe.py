@@ -28,9 +28,11 @@ def run_pyinstaller():
     else:
         icon_arg = [f'--icon={icon_path}']
 
-    # Datos adicionales (carpeta assets)
+    # Datos adicionales (carpeta assets y schema.sql)
     # En Windows el separador es ;
-    add_data_arg = f'assets{os.pathsep}assets'
+    # assets -> assets
+    # src/database/schema.sql -> src/database
+    add_data_arg = f'assets{os.pathsep}assets{os.pathsep}src/database/schema.sql{os.pathsep}src/database'
 
     # Comando de PyInstaller
     # --noconsole: No mostrar consola (para GUI)
@@ -42,7 +44,7 @@ def run_pyinstaller():
         '--noconsole',
         '--onefile',
         '--clean',
-        '--name=Gestor3D',
+        '--name=Formexa3D',
         f'--add-data={add_data_arg}',
         *icon_arg,
         main_script
@@ -54,8 +56,8 @@ def run_pyinstaller():
     try:
         subprocess.check_call(command)
         print("\n¡Construcción completada con éxito!")
-        dist_exe_path = os.path.join(project_dir, 'dist', 'Gestor3D.exe')
-        root_exe_path = os.path.join(project_dir, 'Gestor3D.exe')
+        dist_exe_path = os.path.join(project_dir, 'dist', 'Formexa3D.exe')
+        root_exe_path = os.path.join(project_dir, 'Formexa3D.exe')
         
         print(f"El ejecutable se encuentra en: {dist_exe_path}")
         

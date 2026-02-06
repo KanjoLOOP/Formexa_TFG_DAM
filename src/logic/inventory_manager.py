@@ -10,6 +10,10 @@ class InventoryManager:
             INSERT INTO filaments (brand, material_type, color, weight_initial, weight_current, price, diameter, density)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
+        # Validación básica
+        if weight_initial < 0 or price < 0:
+            return False, "El peso y el precio no pueden ser negativos."
+
         # Al inicio, peso actual = peso inicial
         params = (brand, material_type, color, weight_initial, weight_initial, price, diameter, density)
         

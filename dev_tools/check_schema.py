@@ -1,7 +1,7 @@
 import sqlite3
 
 def check_filaments_schema():
-    conn = sqlite3.connect('gestor3d.db')
+    conn = sqlite3.connect('../data/gestor3d.db')
     cursor = conn.cursor()
     
     try:

@@ -44,3 +44,9 @@ Thumbs.db
 
 # Temporal
 init_db_script.py
+
+session.json
+
+
+*.exe
+installer_output/

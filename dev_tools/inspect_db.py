@@ -2,7 +2,7 @@ import sqlite3
 
 def inspect_database():
     try:
-        conn = sqlite3.connect('gestor3d.db')
+        conn = sqlite3.connect('../data/gestor3d.db')
         cursor = conn.cursor()
         
         # Ver todas las tablas

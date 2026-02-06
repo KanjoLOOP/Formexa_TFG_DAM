@@ -1,7 +1,7 @@
-import os
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QStackedWidget, QFrame, QLabel, QMessageBox)
 from src.ui.utils import MessageBoxHelper
+from src.utils.resource_path import get_asset_path
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 
@@ -19,21 +19,50 @@ class MainWindow(QMainWindow):
     def __init__(self, auth_manager):
         super().__init__()
         self.auth_manager = auth_manager
-        self.user = auth_manager.get_current_user()
+        self.user = None
         
-        self.setWindowTitle(f"Formexa - {self.user['username']}")
+        self.setWindowTitle("Formexa")
         self.resize(1100, 750)
         
         # Cargar estilos
         self.load_styles()
 
-        # Widget central principal
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        # Stack Principal (Login vs App)
+        self.central_stack = QStackedWidget()
+        self.setCentralWidget(self.central_stack)
+
+        # 1. Login Widget
+        from src.ui.login_widget import LoginWidget
+        self.login_widget = LoginWidget(self.auth_manager)
+        self.login_widget.login_successful.connect(self.on_login_successful)
+        self.central_stack.addWidget(self.login_widget)
+
+        # 2. Main App Widget
+        self.main_app_widget = QWidget()
+        self.setup_main_app_ui()
+        self.central_stack.addWidget(self.main_app_widget)
+
+        # Mostrar Login inicialmente
+        self.central_stack.setCurrentWidget(self.login_widget)
+
+    def on_login_successful(self, user):
+        """Maneja el login exitoso."""
+        self.user = user
+        self.setWindowTitle(f"Formexa - {self.user['username']}")
         
+        # Inicializar páginas ahora que tenemos usuario
+        self.init_pages()
+        
+        self.central_stack.setCurrentWidget(self.main_app_widget)
+        
+        # Simular click en Home para cargar estado inicial correcto
+        if hasattr(self, 'btn_home'):
+            self.btn_home.click()
+
+    def setup_main_app_ui(self):
+        """Configura la UI principal de la aplicación."""
         # Layout principal (Horizontal: Menú Lateral + Contenido)
-        # Layout principal (Horizontal: Menú Lateral + Contenido)
-        main_layout = QHBoxLayout(central_widget)
+        main_layout = QHBoxLayout(self.main_app_widget)
         main_layout.setContentsMargins(0, 0, 20, 0) # Margen derecho para el contenido
         main_layout.setSpacing(20) # Espacio entre menú y contenido
 
@@ -45,13 +74,42 @@ class MainWindow(QMainWindow):
         self.content_area = QStackedWidget()
         main_layout.addWidget(self.content_area)
 
-        # Inicializar páginas
-        self.init_pages()
+    # ... (other methods)
+
+    def init_pages(self):
+        """Inicializa y añade las páginas al StackedWidget."""
+        # Limpiar widgets anteriores si existen
+        while self.content_area.count():
+            widget = self.content_area.widget(0)
+            self.content_area.removeWidget(widget)
+            widget.deleteLater()
+
+        self.home_widget = HomeWidget()
+        self.calc_widget = CalculatorWidget()
+        self.library_widget = LibraryWidget()
+        self.inventory_widget = InventoryWidget()
+        self.projects_widget = ProjectsWidget(self.auth_manager)
+        self.market_widget = MarketplaceWidget()
+        self.settings_widget = SettingsWidget()
+        
+        # Conectar señales
+        self.inventory_widget.data_changed.connect(self.home_widget.refresh_dashboard)
+        self.settings_widget.logout_requested.connect(self.handle_logout)
+        self.settings_widget.exit_requested.connect(self.handle_exit)
+
+        self.content_area.addWidget(self.home_widget)
+        self.content_area.addWidget(self.calc_widget)
+        self.content_area.addWidget(self.library_widget)
+        self.content_area.addWidget(self.inventory_widget)
+        self.content_area.addWidget(self.projects_widget)
+        self.content_area.addWidget(self.market_widget)
+        self.content_area.addWidget(self.settings_widget)
+
+        # Seleccionar página inicial (Esto se hace en on_login_successful)
 
     def load_styles(self):
         """Carga el archivo QSS."""
-        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        style_path = os.path.join(base_path, 'assets', 'styles.qss')
+        style_path = get_asset_path(os.path.join('assets', 'styles.qss'))
         try:
             with open(style_path, 'r') as f:
                 self.setStyleSheet(f.read())
@@ -73,8 +131,7 @@ class MainWindow(QMainWindow):
         logo_label = QLabel()
         
         # Usar ruta absoluta para asegurar que se encuentra la imagen
-        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        logo_path = os.path.join(base_path, 'assets', 'logo.png')
+        logo_path = get_asset_path(os.path.join('assets', 'logo.png'))
         
         logo_pixmap = QPixmap(logo_path)
         if not logo_pixmap.isNull():
@@ -128,37 +185,18 @@ class MainWindow(QMainWindow):
         btn.clicked.connect(lambda: self.switch_page(index, btn))
         return btn
 
-    def init_pages(self):
-        """Inicializa y añade las páginas al StackedWidget."""
-        self.home_widget = HomeWidget()
-        self.calc_widget = CalculatorWidget()
-        self.library_widget = LibraryWidget()
-        self.inventory_widget = InventoryWidget()
-        self.projects_widget = ProjectsWidget(self.auth_manager)
-        self.market_widget = MarketplaceWidget()
-        self.settings_widget = SettingsWidget()
-        
-        # Conectar señales
-        self.inventory_widget.data_changed.connect(self.home_widget.refresh_dashboard)
-        self.settings_widget.logout_requested.connect(self.handle_logout)
-        self.settings_widget.exit_requested.connect(self.handle_exit)
 
-        self.content_area.addWidget(self.home_widget)
-        self.content_area.addWidget(self.calc_widget)
-        self.content_area.addWidget(self.library_widget)
-        self.content_area.addWidget(self.inventory_widget)
-        self.content_area.addWidget(self.projects_widget)
-        self.content_area.addWidget(self.market_widget)
-        self.content_area.addWidget(self.settings_widget)
-
-        # Seleccionar página inicial
-        self.btn_home.click()
     
     def handle_logout(self):
         """Maneja el cierre de sesión."""
         self.auth_manager.logout()
-        self.logout_requested.emit()
-        self.close()
+        self.user = None
+        self.setWindowTitle("Formexa")
+        self.central_stack.setCurrentWidget(self.login_widget)
+        
+        # Resetear login widget si es necesario (limpiar campos)
+        if hasattr(self.login_widget, 'password_input'):
+            self.login_widget.password_input.clear()
     
     def handle_exit(self):
         """Maneja la salida de la aplicación."""

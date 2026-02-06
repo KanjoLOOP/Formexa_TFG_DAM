@@ -38,7 +38,7 @@ jobs:
         # Here we use the direct command as requested, pointing to main.py
         pip install pyinstaller
         python -m PyInstaller --noconfirm --onefile --windowed --clean \
-          --name "Gestor3D" \
+          --name "Formexa3D" \
           --icon "assets/app_icon.ico" \
           --add-data "assets;assets" \
           --hidden-import "PyQt5" \
@@ -57,17 +57,17 @@ jobs:
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Gestor3D_Setup
-        path: installer_output/Gestor3D_Setup.exe
+        name: Formexa3D_Setup
+        path: installer_output/Formexa3D_Setup.exe
         
     - name: Upload Portable Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Gestor3D_Portable
-        path: dist/Gestor3D.exe
+        name: Formexa3D_Portable
+        path: dist/Formexa3D.exe
 
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: installer_output/Gestor3D_Setup.exe
+        files: installer_output/Formexa3D_Setup.exe

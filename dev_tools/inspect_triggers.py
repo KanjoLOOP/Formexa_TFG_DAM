@@ -2,7 +2,7 @@ import sqlite3
 
 def inspect_triggers():
     try:
-        conn = sqlite3.connect('gestor3d.db')
+        conn = sqlite3.connect('../data/gestor3d.db')
         cursor = conn.cursor()
         
         cursor.execute("SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger'")

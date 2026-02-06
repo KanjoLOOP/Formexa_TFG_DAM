@@ -6,7 +6,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5.QtWidgets import QApplication
 from src.ui.main_window import MainWindow
-from src.ui.login_widget import LoginWidget
 from src.logic.auth_manager import AuthManager
 
 class App:
@@ -19,35 +18,37 @@ class App:
         self.login_widget = None
         self.main_window = None
         
-    def show_login(self):
-        """Muestra la pantalla de login."""
-        self.login_widget = LoginWidget(self.auth_manager)
-        self.login_widget.login_successful.connect(self.on_login_successful)
-        self.login_widget.show()
-    
-    def on_login_successful(self, user):
-        """Callback cuando el login es exitoso."""
-        if self.login_widget:
-            self.login_widget.close()
-            self.login_widget = None
-        
-        self.main_window = MainWindow(self.auth_manager)
-        self.main_window.logout_requested.connect(self.on_logout_requested)
-        self.main_window.show()
-    
-    def on_logout_requested(self):
-        """Callback cuando se solicita cerrar sesión."""
-        if self.main_window:
-            self.main_window.close()
-            self.main_window = None
-        
-        # Volver a mostrar login
-        self.show_login()
-    
     def run(self):
         """Inicia la aplicación."""
-        self.show_login()
+        # Inicializar BD si no existe
+        self._check_db()
+        
+        self.main_window = MainWindow(self.auth_manager)
+        self.main_window.show()
         return self.app.exec_()
+
+    def _check_db(self):
+        """Verifica y crea la base de datos si es necesario."""
+        from src.database.db_manager import DBManager
+        db = DBManager()
+        
+        # Si el archivo de BD no existe o está vacío, inicializar
+        if not os.path.exists(db.db_file) or os.path.getsize(db.db_file) == 0:
+            import sys
+            if getattr(sys, 'frozen', False):
+                # Ruta en el ejecutable (dependerá de cómo lo empaquetemos en build_exe.py)
+                # Asumiendo --add-data "src/database/schema.sql;src/database"
+                base_path = sys._MEIPASS
+                schema_path = os.path.join(base_path, 'src', 'database', 'schema.sql')
+            else:
+                # Ruta en desarrollo
+                schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database', 'schema.sql')
+            
+            print(f"Inicializando base de datos desde: {schema_path}")
+            if os.path.exists(schema_path):
+                db.init_db(schema_path)
+            else:
+                print(f"Error: No se encontró el esquema en {schema_path}")
 
 def main():
     app = App()

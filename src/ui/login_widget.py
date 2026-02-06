@@ -2,8 +2,10 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QLineEdit, QFrame, QMessageBox, QCheckBox)
 from src.ui.utils import MessageBoxHelper
 from src.logic.session_manager import SessionManager
+from src.utils.resource_path import get_asset_path
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPixmap
+import os
 
 class LoginWidget(QWidget):
     """Widget de login con soporte para registro y modo invitado."""
@@ -19,6 +21,7 @@ class LoginWidget(QWidget):
     
     def init_ui(self):
         self.setObjectName("LoginWidget")
+        self.setWindowTitle("Iniciar Sesión")
         self.setStyleSheet("#LoginWidget { background-color: #1E1E1E; }")
         
         layout = QVBoxLayout()
@@ -32,16 +35,23 @@ class LoginWidget(QWidget):
         container_layout.setSpacing(20)
         container_layout.setContentsMargins(40, 40, 40, 40)
         
-        # Título
-        title = QLabel("Formexa")
-        title.setStyleSheet("font-size: 32px; font-weight: bold; color: white;")
-        title.setAlignment(Qt.AlignCenter)
-        container_layout.addWidget(title)
+        # Logo
+        logo_label = QLabel()
+        logo_path = get_asset_path(os.path.join('assets', 'logo.png'))
         
-        subtitle = QLabel("Gestión de Impresión 3D")
-        subtitle.setStyleSheet("font-size: 14px; color: #999; margin-bottom: 20px;")
-        subtitle.setAlignment(Qt.AlignCenter)
-        container_layout.addWidget(subtitle)
+        logo_pixmap = QPixmap(logo_path)
+        if not logo_pixmap.isNull():
+            scaled_pixmap = logo_pixmap.scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            logo_label.setPixmap(scaled_pixmap)
+            logo_label.setAlignment(Qt.AlignCenter)
+            # Añadir margen superior para bajarlo un poco
+            logo_label.setStyleSheet("padding-top: 20px; margin-bottom: 20px;")
+        else:
+            logo_label.setText("Formexa") # Fallback
+            logo_label.setStyleSheet("font-size: 32px; font-weight: bold; color: white; padding-top: 20px; margin-bottom: 20px;")
+            logo_label.setAlignment(Qt.AlignCenter)
+            
+        container_layout.addWidget(logo_label)
         
         # Campos de entrada
         self.username_input = QLineEdit()

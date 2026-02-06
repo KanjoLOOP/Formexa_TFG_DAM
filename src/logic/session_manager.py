@@ -1,10 +1,13 @@
 import json
 import os
+from src.utils.logger import logger
 
 class SessionManager:
     """Gestor de sesión para recordar credenciales."""
     
-    SESSION_FILE = "session.json"
+    # .../src/logic/session_manager.py -> .../src/logic -> .../src -> .../ (Project Root)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    SESSION_FILE = os.path.join(BASE_DIR, "data", "session.json")
     
     @staticmethod
     def save_session(username, password):
@@ -18,7 +21,7 @@ class SessionManager:
                 json.dump(data, f)
             return True
         except Exception as e:
-            print(f"Error guardando sesión: {e}")
+            logger.error(f"Error guardando sesión: {e}")
             return False
             
     @staticmethod
@@ -32,7 +35,7 @@ class SessionManager:
                 data = json.load(f)
                 return data.get("username"), data.get("password")
         except Exception as e:
-            print(f"Error cargando sesión: {e}")
+            logger.error(f"Error cargando sesión: {e}")
             return None, None
             
     @staticmethod
@@ -43,6 +46,6 @@ class SessionManager:
                 os.remove(SessionManager.SESSION_FILE)
                 return True
             except Exception as e:
-                print(f"Error borrando sesión: {e}")
+                logger.error(f"Error borrando sesión: {e}")
                 return False
         return True

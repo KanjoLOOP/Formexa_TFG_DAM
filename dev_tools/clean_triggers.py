@@ -1,7 +1,7 @@
 import sqlite3
 
 def clean_triggers():
-    db_path = 'gestor3d.db'
+    db_path = '../data/gestor3d.db'
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     

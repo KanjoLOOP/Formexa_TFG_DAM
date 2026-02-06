@@ -4,6 +4,7 @@ from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import art3d
 import trimesh
 import numpy as np
+from src.utils.logger import logger
 
 class Viewer3DWidget(QWidget):
     def __init__(self):
@@ -108,6 +109,6 @@ class Viewer3DWidget(QWidget):
             self.canvas.draw()
             
         except Exception as e:
-            print(f"Error al cargar modelo: {e}")
+            logger.error(f"Error al cargar modelo: {e}")
             self.ax.text(0, 0, 0, "Error", color='#ff6b6b', ha='center')
             self.canvas.draw()

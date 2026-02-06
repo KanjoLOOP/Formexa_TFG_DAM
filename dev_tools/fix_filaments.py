@@ -2,10 +2,10 @@ import sqlite3
 import os
 
 def fix_filaments_table():
-    db_path = 'gestor3d.db'
+    db_path = '../data/gestor3d.db'
     
     # Backup first
-    backup_path = 'gestor3d_backup_filaments.db'
+    backup_path = '../data/gestor3d_backup_filaments.db'
     if os.path.exists(db_path):
         import shutil
         shutil.copy2(db_path, backup_path)

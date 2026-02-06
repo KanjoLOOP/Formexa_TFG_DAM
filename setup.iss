@@ -1,7 +1,7 @@
-#define MyAppName "Gestor3D"
+#define MyAppName "Formexa3D"
 #define MyAppVersion "1.0"
-#define MyAppPublisher "Gestor3D"
-#define MyAppExeName "Gestor3D.exe"
+#define MyAppPublisher "Formexa3D"
+#define MyAppExeName "Formexa3D.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -16,7 +16,7 @@ DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
 OutputDir=installer_output
-OutputBaseFilename=Gestor3D_Setup
+OutputBaseFilename=Formexa3D_Setup
 SetupIconFile=assets\app_icon.ico
 Compression=lzma
 SolidCompression=yes

@@ -1,5 +1,6 @@
 import re
 import os
+from src.utils.logger import logger
 
 class SlicerParser:
     """
@@ -60,7 +61,7 @@ class SlicerParser:
                 return data
                 
         except Exception as e:
-            print(f"Error parsing G-code: {e}")
+            logger.error(f"Error parsing G-code: {e}")
             return None
 
     def _estimate_weight_from_length(self, length_m, diameter_mm=1.75, density_g_cm3=1.24):

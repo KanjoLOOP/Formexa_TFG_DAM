@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 def deep_clean_triggers():
-    db_path = 'gestor3d.db'
+    db_path = '../data/gestor3d.db'
     
     if not os.path.exists(db_path):
         print(f"ERROR: Database not found at {db_path}")

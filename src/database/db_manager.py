@@ -1,14 +1,30 @@
 import sqlite3
 import os
+import sys
+from src.utils.logger import logger
 from sqlite3 import Error
 
 class DBManager:
     def __init__(self, db_file='gestor3d.db'):
-        # Asegurar que la ruta sea absoluta para evitar problemas con el CWD
-        if db_file == 'gestor3d.db':
+        # Determinar directorio base
+        if getattr(sys, 'frozen', False):
+            # Si corre como exe, usar el directorio del ejecutable
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            # Si corre como script, subir 3 niveles desde este archivo
             # .../src/database/db_manager.py -> .../src/database -> .../src -> .../ (Project Root)
             base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            self.db_file = os.path.join(base_dir, db_file)
+            
+        # Asegurar que existe la carpeta data
+        data_dir = os.path.join(base_dir, 'data')
+        if not os.path.exists(data_dir):
+            try:
+                os.makedirs(data_dir)
+            except OSError as e:
+                logger.error(f"Error creando directorio data: {e}")
+
+        if db_file == 'gestor3d.db':
+            self.db_file = os.path.join(data_dir, db_file)
         else:
             self.db_file = db_file
             
@@ -22,7 +38,7 @@ class DBManager:
             self.connection.execute("PRAGMA foreign_keys = 1")
             return True
         except Error as e:
-            print(f"Error al conectar a SQLite: {e}")
+            logger.error(f"Error al conectar a SQLite: {e}")
             return False
 
     def disconnect(self):
@@ -95,12 +111,12 @@ class DBManager:
             cursor.executescript(sql_script)
             self.connection.commit()
             cursor.close()
-            print("Base de datos SQLite inicializada correctamente.")
+            logger.info("Base de datos SQLite inicializada correctamente.")
             return True
         except Error as e:
-            print(f"Error al inicializar la base de datos: {e}")
+            logger.error(f"Error al inicializar la base de datos: {e}")
             return False
         except FileNotFoundError:
-            print(f"Archivo no encontrado: {schema_file}")
+            logger.error(f"Archivo no encontrado: {schema_file}")
             return False
 

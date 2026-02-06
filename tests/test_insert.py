@@ -11,7 +11,7 @@ def test_insert():
     try:
         # Test directo con sqlite3
         print("=== Test 1: Direct sqlite3 ===")
-        conn = sqlite3.connect('gestor3d.db')
+        conn = sqlite3.connect('../data/gestor3d.db')
         cursor = conn.cursor()
         
         query = """
