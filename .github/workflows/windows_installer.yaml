@@ -51,21 +51,7 @@ jobs:
         $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
         ISCC.exe setup.iss
 
-    - name: Deploy to Releases Folder
-      shell: bash
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        
-        # Pull latest to avoid conflicts
-        git pull origin master --rebase || true
-        
-        mkdir -p docs/releases
-        cp installer_output/Gestor3D_Setup.exe docs/releases/Gestor3D_Setup.exe
-        
-        git add -f docs/releases/Gestor3D_Setup.exe
-        git commit -m "deploy: update windows release [skip ci]" || echo "No changes to commit"
-        git push origin master
+
 
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
