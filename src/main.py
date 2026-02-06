@@ -28,27 +28,103 @@ class App:
         return self.app.exec_()
 
     def _check_db(self):
-        """Verifica y crea la base de datos si es necesario."""
+        """Verifica la integridad de la BD y la inicializa explícitamente si faltan tablas."""
         from src.database.db_manager import DBManager
-        db = DBManager()
+        import sqlite3
         
-        # Si el archivo de BD no existe o está vacío, inicializar
-        if not os.path.exists(db.db_file) or os.path.getsize(db.db_file) == 0:
+        self.log_debug("--- Inicio de verificación de BD ---")
+        
+        db = DBManager()
+        self.log_debug(f"Ruta de BD esperada: {db.db_file}")
+        
+        needs_init = False
+        
+        # 1. Verificar si la tabla 'users' existe realmente
+        try:
+            if not db.connect():
+                self.log_debug("Fallo al conectar a BD")
+                needs_init = True
+            else:
+                cursor = db.connection.cursor()
+                cursor.execute("SELECT count(*) FROM users")
+                rows = cursor.fetchone()
+                self.log_debug(f"Tabla users encontrada. Filas: {rows[0]}")
+                cursor.close()
+        except sqlite3.OperationalError as e:
+            self.log_debug(f"Error Operacional (tabla no existe?): {e}")
+            needs_init = True
+        except Exception as e:
+            self.log_debug(f"Error Genérico verificando BD: {e}")
+            needs_init = True
+            
+        # 2. Inicializar si es necesario
+        if needs_init:
+            self.log_debug("Se requiere inicialización de BD.")
             import sys
             if getattr(sys, 'frozen', False):
-                # Ruta en el ejecutable (dependerá de cómo lo empaquetemos en build_exe.py)
-                # Asumiendo --add-data "src/database/schema.sql;src/database"
+                # Ruta en el ejecutable
                 base_path = sys._MEIPASS
                 schema_path = os.path.join(base_path, 'src', 'database', 'schema.sql')
+                self.log_debug(f"Modo Frozen detectado. Base path: {base_path}")
             else:
                 # Ruta en desarrollo
                 schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database', 'schema.sql')
+                self.log_debug("Modo Desarrollo detectado.")
             
-            print(f"Inicializando base de datos desde: {schema_path}")
-            if os.path.exists(schema_path):
-                db.init_db(schema_path)
+            self.log_debug(f"Buscando schema en: {schema_path}")
+            
+            if not os.path.exists(schema_path):
+                self.log_debug("ERROR FATAL: El archivo schema.sql NO existe en la ruta.")
+                self._show_fatal_error(
+                    "Error Fatal: Archivo Perdido", 
+                    f"No se encuentra el archivo de esquema SQL.\n\nRuta buscada:\n{schema_path}\n\nLa aplicación no puede funcionar sin base de datos."
+                )
+                return
+            
+            # Leer primeros bytes para verificar contenido
+            try:
+                with open(schema_path, 'r') as f:
+                    content_preview = f.read(50)
+                    self.log_debug(f"Contenido (inicio): {content_preview}...")
+            except Exception as e:
+                self.log_debug(f"Error leyendo archivo schema: {e}")
+
+            if not db.init_db(schema_path):
+                self.log_debug("db.init_db devolvió False")
+                self._show_fatal_error(
+                    "Error de Inicialización", 
+                    f"Falló la creación de la base de datos.\n\nArchivo de esquema: {schema_path}\nRevisa debug_log.txt."
+                )
             else:
-                print(f"Error: No se encontró el esquema en {schema_path}")
+                self.log_debug("db.init_db devolvió True. Inicialización exitosa.")
+
+    def log_debug(self, msg):
+        """Escribe mensaje en debug_log.txt junto al ejecutable."""
+        try:
+            import datetime
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Determinar ruta del log
+            if getattr(sys, 'frozen', False):
+                base_dir = os.path.dirname(sys.executable)
+            else:
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                
+            log_path = os.path.join(base_dir, 'debug_log.txt')
+            
+            with open(log_path, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {msg}\n")
+        except Exception:
+            pass # No podemos hacer mucho si falla el log
+
+    def _show_fatal_error(self, title, message):
+        """Muestra un mensaje de error crítico bloqueante."""
+        from PyQt5.QtWidgets import QMessageBox
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.exec_()
 
 def main():
     app = App()
