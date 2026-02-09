@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QComboBox, QCheckBox, QTextEdit, QPushButton, QFrame, QMessageBox)
 from src.ui.utils import MessageBoxHelper
 from PyQt5.QtCore import Qt, pyqtSignal
+from src.utils.translator import translator
 
 class SettingsWidget(QWidget):
     logout_requested = pyqtSignal()  # Señal para cerrar sesión
@@ -10,6 +11,14 @@ class SettingsWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        
+        # Conectar cambio de idioma
+        translator.language_changed.connect(self.retranslate_ui)
+        
+        # Cargar idioma guardado y actualizar combo
+        saved_lang = translator.get_current_language()
+        lang_index = {'es': 0, 'en': 1, 'fr': 2}.get(saved_lang, 0)
+        self.lang_combo.setCurrentIndex(lang_index)
 
     def init_ui(self):
         main_layout = QVBoxLayout()
@@ -17,9 +26,9 @@ class SettingsWidget(QWidget):
         main_layout.setContentsMargins(30, 30, 30, 30)
         
         # Título
-        title = QLabel("Configuración")
-        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #e0e0e0; margin-bottom: 20px;")
-        main_layout.addWidget(title)
+        self.title = QLabel("Configuración")
+        self.title.setStyleSheet("font-size: 24px; font-weight: bold; color: #e0e0e0; margin-bottom: 20px;")
+        main_layout.addWidget(self.title)
 
         # --- Sección General (Idioma y Tema) ---
         general_frame = QFrame()
@@ -27,16 +36,16 @@ class SettingsWidget(QWidget):
         general_layout = QVBoxLayout(general_frame)
         general_layout.setContentsMargins(20, 20, 20, 20)
         
-        gen_title = QLabel("General")
-        gen_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
-        general_layout.addWidget(gen_title)
+        self.gen_title = QLabel("General")
+        self.gen_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
+        general_layout.addWidget(self.gen_title)
 
 
 
         # Idioma
         lang_layout = QHBoxLayout()
-        lang_label = QLabel("Idioma:")
-        lang_label.setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;")
+        self.lang_label = QLabel("Idioma:")
+        self.lang_label.setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;")
         self.lang_combo = QComboBox()
         self.lang_combo.addItems(["Español", "English", "Français"])
         self.lang_combo.setStyleSheet("""
@@ -58,7 +67,8 @@ class SettingsWidget(QWidget):
                 selection-color: white;
             }
         """)
-        lang_layout.addWidget(lang_label)
+        self.lang_combo.currentIndexChanged.connect(self.on_language_changed)
+        lang_layout.addWidget(self.lang_label)
         lang_layout.addWidget(self.lang_combo)
         lang_layout.addStretch()
         general_layout.addLayout(lang_layout)
@@ -71,20 +81,20 @@ class SettingsWidget(QWidget):
         session_layout = QVBoxLayout(session_frame)
         session_layout.setContentsMargins(20, 20, 20, 20)
         
-        session_title = QLabel("Sesión")
-        session_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
-        session_layout.addWidget(session_title)
+        self.session_title = QLabel("Sesión")
+        self.session_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
+        session_layout.addWidget(self.session_title)
         
-        session_desc = QLabel("Gestiona tu sesión actual:")
-        session_desc.setStyleSheet("color: #b0b0b0; margin-bottom: 10px; border: none;")
-        session_layout.addWidget(session_desc)
+        self.session_desc = QLabel("Gestiona tu sesión actual:")
+        self.session_desc.setStyleSheet("color: #b0b0b0; margin-bottom: 10px; border: none;")
+        session_layout.addWidget(self.session_desc)
         
         # Botones de sesión
         session_buttons = QHBoxLayout()
         
-        btn_logout = QPushButton("Cambiar de Cuenta")
-        btn_logout.setCursor(Qt.PointingHandCursor)
-        btn_logout.setStyleSheet("""
+        self.btn_logout = QPushButton("Cambiar de Cuenta")
+        self.btn_logout.setCursor(Qt.PointingHandCursor)
+        self.btn_logout.setStyleSheet("""
             QPushButton {
                 background-color: #007BFF;
                 color: white;
@@ -100,11 +110,11 @@ class SettingsWidget(QWidget):
                 background-color: #0056b3;
             }
         """)
-        btn_logout.clicked.connect(self.handle_logout)
+        self.btn_logout.clicked.connect(self.handle_logout)
         
-        btn_exit = QPushButton("Salir")
-        btn_exit.setCursor(Qt.PointingHandCursor)
-        btn_exit.setStyleSheet("""
+        self.btn_exit = QPushButton("Salir")
+        self.btn_exit.setCursor(Qt.PointingHandCursor)
+        self.btn_exit.setStyleSheet("""
             QPushButton {
                 background-color: #f44336;
                 color: white;
@@ -117,10 +127,10 @@ class SettingsWidget(QWidget):
                 background-color: #d32f2f;
             }
         """)
-        btn_exit.clicked.connect(self.handle_exit)
+        self.btn_exit.clicked.connect(self.handle_exit)
         
-        session_buttons.addWidget(btn_logout)
-        session_buttons.addWidget(btn_exit)
+        session_buttons.addWidget(self.btn_logout)
+        session_buttons.addWidget(self.btn_exit)
         session_buttons.addStretch()
         session_layout.addLayout(session_buttons)
         
@@ -132,13 +142,13 @@ class SettingsWidget(QWidget):
         report_layout = QVBoxLayout(report_frame)
         report_layout.setContentsMargins(20, 20, 20, 20)
         
-        rep_title = QLabel("Reportar Error")
-        rep_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
-        report_layout.addWidget(rep_title)
+        self.rep_title = QLabel("Reportar Error")
+        self.rep_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
+        report_layout.addWidget(self.rep_title)
         
-        report_desc = QLabel("Describe el problema que has encontrado:")
-        report_desc.setStyleSheet("color: #b0b0b0; margin-bottom: 5px; border: none;")
-        report_layout.addWidget(report_desc)
+        self.report_desc = QLabel("Describe el problema que has encontrado:")
+        self.report_desc.setStyleSheet("color: #b0b0b0; margin-bottom: 5px; border: none;")
+        report_layout.addWidget(self.report_desc)
 
         self.error_text = QTextEdit()
         self.error_text.setPlaceholderText("Escribe aquí los detalles del error...")
@@ -188,12 +198,42 @@ class SettingsWidget(QWidget):
         """Emite señal para cerrar la aplicación."""
         self.exit_requested.emit()
 
+    def on_language_changed(self, index):
+        """Maneja el cambio de idioma."""
+        lang_map = {0: 'es', 1: 'en', 2: 'fr'}
+        lang_code = lang_map.get(index, 'es')
+        translator.set_language(lang_code)
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos de la UI con las traducciones."""
+        tr = translator.tr
+        
+        # Título principal
+        self.title.setText(tr('settings.title'))
+        
+        # Sección General
+        self.gen_title.setText(tr('settings.general'))
+        self.lang_label.setText(tr('settings.language'))
+        
+        # Sección Sesión
+        self.session_title.setText(tr('settings.session'))
+        self.session_desc.setText(tr('settings.session_desc'))
+        self.btn_logout.setText(tr('settings.change_account'))
+        self.btn_exit.setText(tr('settings.exit'))
+        
+        # Sección Reportar Error
+        self.rep_title.setText(tr('settings.report_error'))
+        self.report_desc.setText(tr('settings.report_desc'))
+        self.error_text.setPlaceholderText(tr('settings.report_placeholder'))
+        self.send_btn.setText(tr('settings.send_report'))
+    
     def submit_report(self):
+        tr = translator.tr
         text = self.error_text.toPlainText()
         if not text.strip():
-            MessageBoxHelper.show_warning(self, "Reporte vacío", "Por favor describe el error antes de enviar.")
+            MessageBoxHelper.show_warning(self, tr('settings.report_empty'), tr('settings.report_empty_desc'))
             return
         
         # Aquí iría la lógica real de envío
-        MessageBoxHelper.show_info(self, "Reporte Enviado", "Gracias por tu reporte. Lo revisaremos pronto.")
+        MessageBoxHelper.show_info(self, tr('settings.report_sent'), tr('settings.report_sent_desc'))
         self.error_text.clear()

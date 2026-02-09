@@ -13,6 +13,7 @@ from src.ui.inventory_widget import InventoryWidget
 from src.ui.marketplace_widget import MarketplaceWidget
 from src.ui.settings_widget import SettingsWidget
 from src.ui.projects_widget import ProjectsWidget
+from src.utils.translator import translator
 
 class MainWindow(QMainWindow):
     logout_requested = pyqtSignal()  # Señal para volver al login
@@ -27,6 +28,11 @@ class MainWindow(QMainWindow):
         
         # Cargar estilos
         self.load_styles()
+        
+        # Conectar traductor
+        translator.language_changed.connect(self.retranslate_ui)
+        # Cargar idioma guardado
+        translator.load_saved_language()
 
         # Stack Principal (Login vs App)
         self.central_stack = QStackedWidget()
@@ -150,12 +156,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(logo_label)
 
         # Botones de navegación
-        self.btn_home = self.create_menu_button("Inicio", 0)
-        self.btn_calc = self.create_menu_button("Calculadora", 1)
-        self.btn_library = self.create_menu_button("Biblioteca", 2)
-        self.btn_inventory = self.create_menu_button("Inventario", 3)
-        self.btn_projects = self.create_menu_button("Proyectos", 4)
-        self.btn_market = self.create_menu_button("Marketplace", 5)
+        tr = translator.tr
+        self.btn_home = self.create_menu_button(tr('menu.home'), 0)
+        self.btn_calc = self.create_menu_button(tr('menu.calculator'), 1)
+        self.btn_library = self.create_menu_button(tr('menu.library'), 2)
+        self.btn_inventory = self.create_menu_button(tr('menu.inventory'), 3)
+        self.btn_projects = self.create_menu_button(tr('menu.projects'), 4)
+        self.btn_market = self.create_menu_button(tr('menu.marketplace'), 5)
 
         layout.addWidget(self.btn_home)
         layout.addWidget(self.btn_calc)
@@ -165,7 +172,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.btn_market)
         
         # Configuración
-        self.btn_settings = self.create_menu_button("Configuración", 6)
+        self.btn_settings = self.create_menu_button(translator.tr('menu.settings'), 6)
         layout.addWidget(self.btn_settings)
         
         layout.addStretch()
@@ -184,7 +191,32 @@ class MainWindow(QMainWindow):
         btn.setObjectName("MenuButton")
         btn.setCheckable(True)
         btn.clicked.connect(lambda: self.switch_page(index, btn))
+        btn.setProperty('menu_index', index)  # Guardar índice para retranslate
         return btn
+    
+    def retranslate_ui(self):
+        """Actualiza todos los textos de la UI con las traducciones."""
+        tr = translator.tr
+        
+        # Título de ventana
+        if self.user:
+            self.setWindowTitle(f"{tr('app_title')} - {self.user['username']}")
+        else:
+            self.setWindowTitle(tr('app_title'))
+        
+        # Botones de menú
+        menu_keys = ['home', 'calculator', 'library', 'inventory', 'projects', 'marketplace', 'settings']
+        buttons = [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory, 
+                  self.btn_projects, self.btn_market, self.btn_settings]
+        
+        for btn, key in zip(buttons, menu_keys):
+            btn.setText(tr(f'menu.{key}'))
+        
+        # Propagar a widgets hijos si existen
+        if hasattr(self, 'settings_widget') and self.settings_widget:
+            self.settings_widget.retranslate_ui()
+        if hasattr(self, 'login_widget') and self.login_widget:
+            self.login_widget.retranslate_ui() if hasattr(self.login_widget, 'retranslate_ui') else None
 
 
     

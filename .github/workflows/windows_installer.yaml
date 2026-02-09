@@ -41,6 +41,8 @@ jobs:
           --name "Formexa3D" \
           --icon "assets/app_icon.ico" \
           --add-data "assets;assets" \
+          --add-data "src/database/schema.sql;src/database" \
+          --add-data "src/locales;src/locales" \
           --hidden-import "PyQt5" \
           src/main.py
 

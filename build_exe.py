@@ -45,7 +45,10 @@ def run_pyinstaller():
         '--onefile',
         '--clean',
         '--name=Formexa3D',
-        f'--add-data={add_data_arg}',
+        '--name=Formexa3D',
+        '--add-data=assets;assets',
+        '--add-data=src/database/schema.sql;src/database',
+        '--add-data=src/locales;src/locales',
         *icon_arg,
         main_script
     ]

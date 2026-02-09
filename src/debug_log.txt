@@ -1,0 +1,11 @@
+[2026-02-09 23:43:35] --- Inicio de verificación de BD ---
+[2026-02-09 23:43:35] Ruta de BD esperada: C:\Users\Ebisu\AppData\Roaming\Formexa3D\data\gestor3d.db
+[2026-02-09 23:43:35] Error Operacional (tabla no existe?): no such table: users
+[2026-02-09 23:43:35] Se requiere inicialización de BD.
+[2026-02-09 23:43:35] Modo Desarrollo detectado.
+[2026-02-09 23:43:35] Buscando schema en: C:\Users\Ebisu\Desktop\FP\TFG\Gestor3D\src\database\schema.sql
+[2026-02-09 23:43:35] Contenido schema.sql (inicio): -- Script de creación de base de datos para Formex...
+[2026-02-09 23:43:35] db.init_db devolvió True. Inicialización exitosa.
+[2026-02-10 00:17:53] --- Inicio de verificación de BD ---
+[2026-02-10 00:17:53] Ruta de BD esperada: C:\Users\Ebisu\AppData\Roaming\Formexa3D\data\gestor3d.db
+[2026-02-10 00:17:53] Tabla users encontrada. Filas: 1
