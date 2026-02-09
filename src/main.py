@@ -64,8 +64,28 @@ class App:
             if getattr(sys, 'frozen', False):
                 # Ruta en el ejecutable
                 base_path = sys._MEIPASS
+                self.log_debug(f"Modo Frozen detectado. Base path (_MEIPASS): {base_path}")
+                
+                # Listar contenido de _MEIPASS para debugging
+                try:
+                    meipass_contents = os.listdir(base_path)
+                    self.log_debug(f"Contenido de _MEIPASS (primeros 20): {meipass_contents[:20]}")
+                    
+                    src_path = os.path.join(base_path, 'src')
+                    if os.path.exists(src_path):
+                        src_contents = os.listdir(src_path)
+                        self.log_debug(f"Contenido de src/: {src_contents}")
+                        
+                        src_db_path = os.path.join(src_path, 'database')
+                        if os.path.exists(src_db_path):
+                            db_contents = os.listdir(src_db_path)
+                            self.log_debug(f"Contenido de src/database/: {db_contents}")
+                    else:
+                        self.log_debug("ERROR: No existe directorio 'src' en _MEIPASS")
+                except Exception as e:
+                    self.log_debug(f"Error listando contenidos: {e}")
+                
                 schema_path = os.path.join(base_path, 'src', 'database', 'schema.sql')
-                self.log_debug(f"Modo Frozen detectado. Base path: {base_path}")
             else:
                 # Ruta en desarrollo
                 schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database', 'schema.sql')
@@ -74,26 +94,30 @@ class App:
             self.log_debug(f"Buscando schema en: {schema_path}")
             
             if not os.path.exists(schema_path):
-                self.log_debug("ERROR FATAL: El archivo schema.sql NO existe en la ruta.")
-                self._show_fatal_error(
-                    "Error Fatal: Archivo Perdido", 
-                    f"No se encuentra el archivo de esquema SQL.\n\nRuta buscada:\n{schema_path}\n\nLa aplicación no puede funcionar sin base de datos."
+                self.log_debug("ADVERTENCIA: El archivo schema.sql NO existe en la ruta.")
+                self._show_warning(
+                    "Base de Datos No Disponible", 
+                    f"No se pudo inicializar la base de datos.\n\n"
+                    f"Puedes continuar usando el Modo Invitado (solo calculadora).\n\n"
+                    f"Ruta buscada: {schema_path}"
                 )
                 return
             
             # Leer primeros bytes para verificar contenido
             try:
-                with open(schema_path, 'r') as f:
-                    content_preview = f.read(50)
-                    self.log_debug(f"Contenido (inicio): {content_preview}...")
+                with open(schema_path, 'r', encoding='utf-8') as f:
+                    content_preview = f.read(100)
+                    self.log_debug(f"Contenido schema.sql (inicio): {content_preview[:50]}...")
             except Exception as e:
                 self.log_debug(f"Error leyendo archivo schema: {e}")
 
             if not db.init_db(schema_path):
-                self.log_debug("db.init_db devolvió False")
-                self._show_fatal_error(
+                self.log_debug("ADVERTENCIA: db.init_db devolvió False")
+                self._show_warning(
                     "Error de Inicialización", 
-                    f"Falló la creación de la base de datos.\n\nArchivo de esquema: {schema_path}\nRevisa debug_log.txt."
+                    f"No se pudo crear la base de datos.\n\n"
+                    f"Puedes continuar usando el Modo Invitado (solo calculadora).\n\n"
+                    f"Revisa debug_log.txt para más detalles."
                 )
             else:
                 self.log_debug("db.init_db devolvió True. Inicialización exitosa.")
@@ -117,13 +141,14 @@ class App:
         except Exception:
             pass # No podemos hacer mucho si falla el log
 
-    def _show_fatal_error(self, title, message):
-        """Muestra un mensaje de error crítico bloqueante."""
+    def _show_warning(self, title, message):
+        """Muestra un mensaje de advertencia NO bloqueante."""
         from PyQt5.QtWidgets import QMessageBox
         msg = QMessageBox()
-        msg.setIcon(QMessageBox.Critical)
+        msg.setIcon(QMessageBox.Warning)
         msg.setWindowTitle(title)
         msg.setText(message)
+        msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
 
 def main():

@@ -5,23 +5,41 @@ from src.utils.logger import logger
 from sqlite3 import Error
 
 class DBManager:
-    def __init__(self, db_file='gestor3d.db'):
-        # Determinar directorio base
-        if getattr(sys, 'frozen', False):
-            # Si corre como exe, usar el directorio del ejecutable
-            base_dir = os.path.dirname(sys.executable)
+    @staticmethod
+    def _get_user_data_dir():
+        """Obtiene el directorio de datos de usuario según el SO."""
+        if sys.platform == 'win32':
+            # En Windows, usar AppData/Roaming
+            base = os.getenv('APPDATA') or os.path.expanduser('~')
+            app_data_dir = os.path.join(base, 'Formexa3D')
         else:
-            # Si corre como script, subir 3 niveles desde este archivo
-            # .../src/database/db_manager.py -> .../src/database -> .../src -> .../ (Project Root)
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            
+            # En Linux/Mac, usar ~/.local/share
+            app_data_dir = os.path.expanduser('~/.local/share/Formexa3D')
+        
+        # Crear si no existe
+        try:
+            os.makedirs(app_data_dir, exist_ok=True)
+        except OSError as e:
+            logger.error(f"Error creando directorio de usuario: {e}")
+            # Fallback a directorio temporal
+            app_data_dir = os.path.join(os.path.expanduser('~'), '.formexa3d')
+            os.makedirs(app_data_dir, exist_ok=True)
+        
+        return app_data_dir
+    
+    def __init__(self, db_file='gestor3d.db'):
+        # SIEMPRE usar directorio de datos de usuario (desarrollo y frozen)
+        # Esto garantiza permisos de escritura en cualquier ubicación
+        app_data_dir = self._get_user_data_dir()
+        data_dir = os.path.join(app_data_dir, 'data')
+        
         # Asegurar que existe la carpeta data
-        data_dir = os.path.join(base_dir, 'data')
-        if not os.path.exists(data_dir):
-            try:
-                os.makedirs(data_dir)
-            except OSError as e:
-                logger.error(f"Error creando directorio data: {e}")
+        try:
+            os.makedirs(data_dir, exist_ok=True)
+        except OSError as e:
+            logger.error(f"Error creando directorio data: {e}")
+            # Si falla, usar directorio base sin subdirectorio
+            data_dir = app_data_dir
 
         if db_file == 'gestor3d.db':
             self.db_file = os.path.join(data_dir, db_file)
@@ -29,6 +47,7 @@ class DBManager:
             self.db_file = db_file
             
         self.connection = None
+        logger.info(f"Base de datos configurada en: {self.db_file}")
 
     def connect(self):
         """Establece la conexión con la base de datos SQLite."""
