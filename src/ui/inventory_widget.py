@@ -7,8 +7,10 @@ from src.logic.inventory_manager import InventoryManager
 class InventoryWidget(QWidget):
     data_changed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, user_id=None):
         super().__init__()
+        # C5c: Guardamos el user_id para filtrar filamentos por usuario
+        self.user_id = user_id
         self.manager = InventoryManager()
         self.init_ui()
         self.refresh_table()
@@ -127,7 +129,8 @@ class InventoryWidget(QWidget):
     def refresh_table(self):
         """Recarga la tabla con datos de la BD."""
         self.table.setRowCount(0)
-        filaments = self.manager.get_all_filaments()
+        # C5c: Filtra por usuario si se tiene user_id
+        filaments = self.manager.get_all_filaments(self.user_id)
         
         if filaments:
             for row_idx, f in enumerate(filaments):
@@ -154,7 +157,7 @@ class InventoryWidget(QWidget):
             weight_val = float(weight)
             price_val = float(price)
             
-            success, msg = self.manager.add_filament(brand, m_type, color, weight_val, price_val)
+            success, msg = self.manager.add_filament(brand, m_type, color, weight_val, price_val, user_id=self.user_id)
             if success:
                 self.refresh_table()
                 self.clear_inputs()

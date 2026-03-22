@@ -10,8 +10,10 @@ from src.ui.notifications_panel import NotificationsPanel
 
 
 class HomeWidget(QWidget):
-    def __init__(self):
+    def __init__(self, user_id=None):
         super().__init__()
+        # C5c: Guardamos el user_id para filtrar datos por usuario
+        self.user_id = user_id
         self.inventory_manager = InventoryManager()
         self.library_manager = LibraryManager()
         self.init_ui()
@@ -47,8 +49,8 @@ class HomeWidget(QWidget):
         main_layout.addLayout(content_layout)
 
         # --- Panel de Notificaciones Inteligentes ---
-        self.notifications_panel = NotificationsPanel()
-        # Ajustar altura fija para que no ocupe demasiado, o dejar que se expanda según contenido
+        # M8/C5c: Pasamos user_id para mostrar estadísticas reales del usuario
+        self.notifications_panel = NotificationsPanel(user_id=self.user_id)
         self.notifications_panel.setFixedHeight(220) 
         main_layout.addWidget(self.notifications_panel)
         
@@ -118,7 +120,8 @@ class HomeWidget(QWidget):
         """Actualiza el gráfico con un diseño simplificado: Cantidad por Material."""
         self.ax.clear()
         
-        filaments = self.inventory_manager.get_all_filaments()
+        # C5c: Filtramos por usuario si está disponible
+        filaments = self.inventory_manager.get_all_filaments(self.user_id)
         
         if filaments and len(filaments) > 0:
             # 1. Agregación de Datos por TIPO
@@ -249,7 +252,8 @@ class HomeWidget(QWidget):
         layout.addWidget(title)
         
         # Obtener últimos modelos
-        models = self.library_manager.get_all_models()
+        # C5c: Filtramos modelos por usuario
+        models = self.library_manager.get_all_models(self.user_id)
         
 
         if models and len(models) > 0:
@@ -329,7 +333,8 @@ class HomeWidget(QWidget):
 
         self.ax_colors.clear()
         
-        filaments = self.inventory_manager.get_all_filaments()
+        # C5c: Filtramos filamentos por color y por usuario
+        filaments = self.inventory_manager.get_all_filaments(self.user_id)
         
         if filaments and len(filaments) > 0:
             # 1. Agregación de Datos por COLOR

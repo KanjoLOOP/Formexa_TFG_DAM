@@ -2,12 +2,16 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, 
 from PyQt5.QtCore import Qt
 from src.logic.inventory_manager import InventoryManager
 from src.logic.library_manager import LibraryManager
+from src.logic.project_manager import ProjectManager
 
 class NotificationsPanel(QWidget):
-    def __init__(self):
+    def __init__(self, user_id=None):
         super().__init__()
+        # C5c / M8: user_id para filtrar datos y mostrar estadísticas reales
+        self.user_id = user_id
         self.inventory_manager = InventoryManager()
         self.library_manager = LibraryManager()
+        self.project_manager = ProjectManager()  # M8: para estadísticas reales
         self.init_ui()
 
     def init_ui(self):
@@ -51,7 +55,8 @@ class NotificationsPanel(QWidget):
         layout = card.layout()
         
         # Lógica para obtener filamentos bajos
-        filaments = self.inventory_manager.get_all_filaments()
+        # C5c: Filtramos filamentos por usuario
+        filaments = self.inventory_manager.get_all_filaments(self.user_id)
         low_stock_filaments = []
 
         for f in filaments:
@@ -176,15 +181,41 @@ class NotificationsPanel(QWidget):
     def populate_monthly_summary_card(self, card):
         layout = card.layout()
         
-        # 1. Material más consumido (Mock)
-        top_material_lbl = QLabel("Material Top: --")
-        top_material_lbl.setStyleSheet("color: #b0b0b0; font-size: 13px; border: none;")
-        layout.addWidget(top_material_lbl)
-
-        # 2. Coste aproximado (Mock)
-        cost_lbl = QLabel("Gasto est.: 0.00 €")
-        cost_lbl.setStyleSheet("color: #b0b0b0; font-size: 13px; border: none;")
-        layout.addWidget(cost_lbl)
+        # M8: Mostrar estadísticas reales del usuario si está logueado
+        if self.user_id and self.user_id != -1:
+            stats = self.project_manager.get_project_stats(self.user_id)
+            # stats es un Row de sqlite3 — accedemos por índice
+            if stats and stats[0]:  # stats[0] = total_projects
+                total_projects = stats[0] or 0
+                total_spent = stats[4] or 0.0  # stats[4] = total_spent
+                total_hours = stats[5] or 0.0  # stats[5] = total_hours
+                
+                projects_lbl = QLabel(f"Proyectos: {total_projects}")
+                projects_lbl.setStyleSheet("color: #e0e0e0; font-size: 13px; border: none;")
+                layout.addWidget(projects_lbl)
+                
+                cost_lbl = QLabel(f"Gasto total: {total_spent:.2f} €")
+                cost_lbl.setStyleSheet("color: #28a745; font-size: 13px; font-weight: bold; border: none;")
+                layout.addWidget(cost_lbl)
+                
+                hours_lbl = QLabel(f"Horas impresas: {total_hours:.1f} h")
+                hours_lbl.setStyleSheet("color: #b0b0b0; font-size: 13px; border: none;")
+                layout.addWidget(hours_lbl)
+            else:
+                # Sin proyectos creados aún
+                no_data_lbl = QLabel("Aún no tienes proyectos")
+                no_data_lbl.setStyleSheet("color: #808080; font-style: italic; border: none;")
+                no_data_lbl.setAlignment(Qt.AlignCenter)
+                layout.addWidget(no_data_lbl)
+        else:
+            # Usuario invitado o sin sesión — mostrar datos mock
+            top_material_lbl = QLabel("Material Top: --")
+            top_material_lbl.setStyleSheet("color: #b0b0b0; font-size: 13px; border: none;")
+            layout.addWidget(top_material_lbl)
+            
+            cost_lbl = QLabel("Gasto est.: 0.00 €")
+            cost_lbl.setStyleSheet("color: #b0b0b0; font-size: 13px; border: none;")
+            layout.addWidget(cost_lbl)
 
         # Separador
         line = QFrame()
@@ -193,8 +224,8 @@ class NotificationsPanel(QWidget):
         line.setStyleSheet("background-color: #404040; border: none; max-height: 1px; margin: 5px 0;")
         layout.addWidget(line)
 
-        # 3. Últimos modelos añadidos (Real)
-        models = self.library_manager.get_all_models()
+        # Últimos modelos añadidos (C5c: filtrado por usuario)
+        models = self.library_manager.get_all_models(self.user_id if self.user_id and self.user_id != -1 else None)
         
         recent_lbl = QLabel("Añadidos recientemente:")
         recent_lbl.setStyleSheet("color: #e0e0e0; font-weight: bold; font-size: 13px; border: none; margin-top: 5px;")

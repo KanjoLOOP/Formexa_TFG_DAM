@@ -41,12 +41,13 @@ Thumbs.db
 
 # Logs
 *.log
+debug_log.txt
+logs/
 
 # Temporal
 init_db_script.py
 
 session.json
-
 
 *.exe
 installer_output/

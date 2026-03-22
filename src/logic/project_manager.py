@@ -60,7 +60,8 @@ class ProjectManager:
             values = []
             
             allowed_fields = ['name', 'description', 'status', 'weight_grams', 'print_time_hours',
-                            'total_cost', 'filament_cost', 'energy_cost', 'model_id', 'filament_id']
+                            'total_cost', 'filament_cost', 'energy_cost', 'model_id', 'filament_id',
+                            'completed_at']  # M9: Permitir actualizar completed_at al completar un proyecto
             
             for field, value in kwargs.items():
                 if field in allowed_fields:

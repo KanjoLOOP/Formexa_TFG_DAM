@@ -6,12 +6,14 @@ from src.database.db_manager import DBManager
 class LibraryManager:
     def __init__(self, db_manager=None):
         self.db = db_manager or DBManager()
-        self.library_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'assets', 'models')
+        # C6: Usar el directorio de datos del usuario (funciona en modo normal y PyInstaller)
+        app_data_dir = DBManager._get_user_data_dir()
+        self.library_path = os.path.join(app_data_dir, 'models')
         
         if not os.path.exists(self.library_path):
             os.makedirs(self.library_path)
 
-    def add_model(self, file_path, name, description=""):
+    def add_model(self, file_path, name, description="", user_id=None):
         """Importa un archivo STL a la biblioteca y lo registra en la BD."""
         if not os.path.exists(file_path):
             return False, "El archivo no existe."
@@ -25,25 +27,32 @@ class LibraryManager:
         except Exception as e:
             return False, f"Error al copiar archivo: {e}"
 
-        # Generar miniatura (Placeholder por ahora)
+        # Miniatura (placeholder por ahora)
         thumbnail_path = "" 
         
-        # Guardar en BD
+        # C5b: Guardar en BD incluyendo user_id
         query = """
-            INSERT INTO models (name, description, file_path, thumbnail_path)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO models (name, description, file_path, thumbnail_path, user_id)
+            VALUES (?, ?, ?, ?, ?)
         """
-        params = (name, description, dest_path, thumbnail_path)
+        params = (name, description, dest_path, thumbnail_path, user_id)
         
         if self.db.execute_query(query, params):
             return True, "Modelo añadido correctamente."
         else:
             return False, "Error al guardar en base de datos."
 
-    def get_all_models(self):
-        """Obtiene todos los modelos de la BD."""
-        query = "SELECT * FROM models ORDER BY added_date DESC"
-        return self.db.fetch_query(query)
+    def get_all_models(self, user_id=None):
+        """Obtiene los modelos de la BD, filtrando por usuario si se proporciona.
+        
+        C5b: Si user_id no es None, devuelve solo los modelos de ese usuario.
+        """
+        if user_id is not None:
+            query = "SELECT * FROM models WHERE user_id = ? ORDER BY added_date DESC"
+            return self.db.fetch_query(query, (user_id,))
+        else:
+            query = "SELECT * FROM models ORDER BY added_date DESC"
+            return self.db.fetch_query(query)
 
     def delete_model(self, model_id):
         """Elimina un modelo de la BD y del sistema de archivos."""

@@ -183,11 +183,16 @@ class LoginWidget(QWidget):
         self.setLayout(layout)
     
     def load_saved_session(self):
-        """Carga credenciales guardadas si existen."""
-        username, password = SessionManager.load_session()
-        if username and password:
+        """Carga la sesión guardada si existe.
+        
+        C4: Solo pre-rellena el campo de usuario, nunca la contraseña.
+        La contraseña siempre la tiene que escribir el usuario manualmente.
+        """
+        username, token = SessionManager.load_session()
+        # Comprobamos que hay un token válido (sesión guardada correctamente)
+        if username and token:
             self.username_input.setText(username)
-            self.password_input.setText(password)
+            # Marcamos la casilla pero NO rellenamos la contraseña por seguridad
             self.remember_me.setChecked(True)
 
     def toggle_mode(self):

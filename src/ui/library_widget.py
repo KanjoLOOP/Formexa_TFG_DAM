@@ -7,8 +7,10 @@ from src.logic.library_manager import LibraryManager
 from src.ui.viewer_3d import Viewer3DWidget
 
 class LibraryWidget(QWidget):
-    def __init__(self):
+    def __init__(self, user_id=None):
         super().__init__()
+        # C5c: user_id para filtrar modelos por usuario
+        self.user_id = user_id
         self.manager = LibraryManager()
         self.init_ui()
         self.refresh_list()
@@ -155,7 +157,8 @@ class LibraryWidget(QWidget):
     def refresh_list(self):
         """Recarga la lista de modelos desde la BD."""
         self.model_list.clear()
-        self.all_models = self.manager.get_all_models()
+        # C5c: Filtra modelos por usuario
+        self.all_models = self.manager.get_all_models(self.user_id)
         self.filter_list(self.search_input.text())
 
     def filter_list(self, text):
@@ -187,7 +190,8 @@ class LibraryWidget(QWidget):
             import os
             name = os.path.basename(file_path)
             
-            success, msg = self.manager.add_model(file_path, name)
+            # C5c: Pasar user_id al añadir el modelo
+            success, msg = self.manager.add_model(file_path, name, user_id=self.user_id)
             if success:
                 self.refresh_list()
                 MessageBoxHelper.show_info(self, "Éxito", msg)

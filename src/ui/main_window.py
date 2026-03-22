@@ -91,10 +91,13 @@ class MainWindow(QMainWindow):
             self.content_area.removeWidget(widget)
             widget.deleteLater()
 
-        self.home_widget = HomeWidget()
+        # C5c: Pasamos el user_id a los widgets que filtran datos por usuario
+        user_id = self.user['id'] if self.user else None
+
+        self.home_widget = HomeWidget(user_id=user_id)
         self.calc_widget = CalculatorWidget()
-        self.library_widget = LibraryWidget()
-        self.inventory_widget = InventoryWidget()
+        self.library_widget = LibraryWidget(user_id=user_id)
+        self.inventory_widget = InventoryWidget(user_id=user_id)
         self.projects_widget = ProjectsWidget(self.auth_manager)
         self.market_widget = MarketplaceWidget()
         self.settings_widget = SettingsWidget()
@@ -111,8 +114,6 @@ class MainWindow(QMainWindow):
         self.content_area.addWidget(self.projects_widget)
         self.content_area.addWidget(self.market_widget)
         self.content_area.addWidget(self.settings_widget)
-
-        # Seleccionar página inicial (Esto se hace en on_login_successful)
 
     def load_styles(self):
         """Carga el archivo QSS."""
@@ -235,6 +236,17 @@ class MainWindow(QMainWindow):
         """Maneja la salida de la aplicación."""
         from PyQt5.QtWidgets import QApplication
         QApplication.quit()
+
+    def closeEvent(self, event):
+        """M11: Pide confirmación antes de cerrar la aplicación."""
+        if MessageBoxHelper.ask_confirmation(
+            self, 
+            "Confirmar salida", 
+            "¿Estás seguro de que quieres cerrar Formexa?"
+        ):
+            event.accept()
+        else:
+            event.ignore()
 
     def switch_page(self, index, button):
         """Cambia la página visible y actualiza el estado de los botones."""

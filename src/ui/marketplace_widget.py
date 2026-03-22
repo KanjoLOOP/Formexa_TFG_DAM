@@ -52,13 +52,10 @@ class MarketplaceWidget(QWidget):
         # Área de scroll principal
         main_scroll = QScrollArea()
         main_scroll.setWidgetResizable(True)
-        main_scroll = QScrollArea()
-        main_scroll.setWidgetResizable(True)
         main_scroll.setStyleSheet("border: none; background-color: #1E1E1E;")
         
         content_widget = QWidget()
         content_widget.setStyleSheet("background-color: #1E1E1E;")
-        content_widget = QWidget()
         self.main_layout = QVBoxLayout(content_widget)
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(30)

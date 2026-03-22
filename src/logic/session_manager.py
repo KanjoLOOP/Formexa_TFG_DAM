@@ -1,5 +1,6 @@
 import json
 import os
+import hashlib
 from src.utils.logger import logger
 
 class SessionManager:
@@ -11,10 +12,16 @@ class SessionManager:
     
     @staticmethod
     def save_session(username, password):
-        """Guarda las credenciales en un archivo JSON."""
+        """Guarda el usuario y un token derivado de la contraseña (no la contraseña en claro).
+        
+        El token se genera con SHA-256 sobre username + password + salt fijo.
+        De esta forma nunca se almacena la contraseña real en el archivo JSON.
+        """
+        # C4: Generamos un token simple — nunca guardamos la contraseña en texto plano
+        token = hashlib.sha256((username + password + "formexa_salt").encode()).hexdigest()
         data = {
             "username": username,
-            "password": password
+            "token": token
         }
         try:
             with open(SessionManager.SESSION_FILE, 'w') as f:
@@ -26,14 +33,19 @@ class SessionManager:
             
     @staticmethod
     def load_session():
-        """Carga las credenciales guardadas."""
+        """Carga la sesión guardada.
+        
+        Returns:
+            tuple: (username, token) o (None, None) si no hay sesión guardada.
+        """
         if not os.path.exists(SessionManager.SESSION_FILE):
             return None, None
             
         try:
             with open(SessionManager.SESSION_FILE, 'r') as f:
                 data = json.load(f)
-                return data.get("username"), data.get("password")
+                # C4: Devolvemos username y token, nunca la contraseña
+                return data.get("username"), data.get("token")
         except Exception as e:
             logger.error(f"Error cargando sesión: {e}")
             return None, None

@@ -213,8 +213,7 @@ class CalculatorWidget(QWidget):
 
     def create_result_card(self, title, value, color_bg="#2a2a2a", big=False):
         """Crea una tarjeta para mostrar resultados."""
-        card = QFrame()
-        card = QFrame()
+        card = QFrame()  # C2: Eliminada la línea duplicada que había aquí
         card.setObjectName("Card")
         lay = QHBoxLayout(card)
         lay.setContentsMargins(10, 8, 10, 8)
@@ -271,7 +270,7 @@ class CalculatorWidget(QWidget):
 
     def calculate(self):
         try:
-            # Obtener valores
+            # Obtener valores del formulario
             hours = self.input_hours.value()
             minutes = self.input_minutes.value()
             total_time = hours + (minutes / 60.0)  # Convertir a horas decimales
@@ -279,10 +278,23 @@ class CalculatorWidget(QWidget):
             weight = float(self.input_weight.text() or 0)
             supplies = float(self.input_supplies.text() or 0)
             margin = float(self.input_margin.text() or 1)
-            
             price_kg = float(self.input_price_kg.text() or 0)
             power = float(self.input_power.text() or 0)
             energy_price = float(self.input_energy_cost.text() or 0)
+
+            # --- C1: Validaciones de entradas antes del cálculo ---
+            if weight < 0:
+                MessageBoxHelper.show_warning(self, "Valor inválido", "El campo 'Peso (g)' no puede ser negativo.")
+                return
+            if price_kg < 0:
+                MessageBoxHelper.show_warning(self, "Valor inválido", "El campo 'Precio Filamento (€/kg)' no puede ser negativo.")
+                return
+            if power < 0:
+                MessageBoxHelper.show_warning(self, "Valor inválido", "El campo 'Consumo (Watts)' no puede ser negativo.")
+                return
+            if margin < 1:
+                MessageBoxHelper.show_warning(self, "Valor inválido", "El 'Multiplicador' debe ser 1 o mayor.")
+                return
 
             # Calcular costes
             filament_cost = self.calculator.calculate_filament_cost(weight, price_kg)
@@ -292,7 +304,6 @@ class CalculatorWidget(QWidget):
             # Calcular precio de venta
             sale_price = self.calculator.calculate_sale_price(total_cost, margin)
 
-            # Mostrar resultados con colores discretos
             # Mostrar resultados
             self.lbl_filament_cost.value_label.setText(f"{filament_cost:.2f} €")
             self.lbl_energy_cost.value_label.setText(f"{energy_cost:.2f} €")
@@ -312,14 +323,10 @@ class CalculatorWidget(QWidget):
                 'total_cost': total_cost
             }
             self.btn_export.setEnabled(True)
-            
-        except ValueError:
-            self.lbl_total_cost.value_label.setText("Error")
-            self.btn_export.setEnabled(False)
 
         except ValueError:
-            self.lbl_total_cost.value_label.setText("Error: Ingrese valores numéricos válidos")
-            self.lbl_sale_price.value_label.setText("")
+            # C1: Un único except con mensaje descriptivo
+            MessageBoxHelper.show_warning(self, "Error de formato", "Alguno de los campos numéricos contiene un valor no válido. Comprueba que todos los campos tienen números correctos.")
             self.btn_export.setEnabled(False)
 
     def export_pdf(self):

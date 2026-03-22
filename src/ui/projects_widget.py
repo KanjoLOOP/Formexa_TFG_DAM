@@ -9,6 +9,7 @@ from src.logic.project_manager import ProjectManager
 from src.logic.library_manager import LibraryManager
 from src.logic.inventory_manager import InventoryManager
 from src.logic.report_generator import ReportGenerator
+from datetime import datetime  # M9: Necesario para registrar completed_at
 
 class ProjectsWidget(QWidget):
     """Widget para gestión de proyectos de impresión 3D."""
@@ -442,6 +443,11 @@ class ProjectDialog(QDialog):
         
         if self.is_edit:
             # Actualizar proyecto existente
+            # M9: Si el estado es "Completado", registramos la fecha de finalización
+            extra_fields = {}
+            if status == "Completado":
+                extra_fields['completed_at'] = datetime.now()
+            
             success, message = self.project_manager.update_project(
                 self.project[0],
                 name=name,
@@ -451,7 +457,8 @@ class ProjectDialog(QDialog):
                 filament_id=filament_id,
                 weight_grams=weight,
                 print_time_hours=time_hours,
-                **costs
+                **costs,
+                **extra_fields
             )
         else:
             # Crear nuevo proyecto

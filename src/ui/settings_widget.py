@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QComboBox, QCheckBox, QTextEdit, QPushButton, QFrame, QMessageBox)
+                             QComboBox, QCheckBox, QTextEdit, QPushButton, QFrame, QMessageBox,
+                             QFileDialog)
 from src.ui.utils import MessageBoxHelper
 from PyQt5.QtCore import Qt, pyqtSignal
 from src.utils.translator import translator
+import shutil
+from src.database.db_manager import DBManager
 
 class SettingsWidget(QWidget):
     logout_requested = pyqtSignal()  # Señal para cerrar sesión
@@ -74,6 +77,46 @@ class SettingsWidget(QWidget):
         general_layout.addLayout(lang_layout)
 
         main_layout.addWidget(general_frame)
+
+        # --- Sección Datos ---
+        data_frame = QFrame()
+        data_frame.setObjectName("Card")
+        data_layout = QVBoxLayout(data_frame)
+        data_layout.setContentsMargins(20, 20, 20, 20)
+
+        data_title = QLabel("Datos")
+        data_title.setStyleSheet("font-size: 18px; font-weight: 600; color: #e0e0e0; border: none; margin-bottom: 10px;")
+        data_layout.addWidget(data_title)
+
+        data_desc = QLabel("Crea una copia de seguridad de tu base de datos:")
+        data_desc.setStyleSheet("color: #b0b0b0; margin-bottom: 10px; border: none;")
+        data_layout.addWidget(data_desc)
+
+        data_buttons = QHBoxLayout()
+        btn_backup = QPushButton("Crear Copia de Seguridad")
+        btn_backup.setCursor(Qt.PointingHandCursor)
+        btn_backup.setStyleSheet("""
+            QPushButton {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #218838;
+            }
+            QPushButton:pressed {
+                background-color: #1e7e34;
+            }
+        """)
+        btn_backup.clicked.connect(self.backup_database)
+        data_buttons.addWidget(btn_backup)
+        data_buttons.addStretch()
+        data_layout.addLayout(data_buttons)
+
+        main_layout.addWidget(data_frame)
 
         # --- Sección Sesión ---
         session_frame = QFrame()
@@ -197,6 +240,23 @@ class SettingsWidget(QWidget):
     def handle_exit(self):
         """Emite señal para cerrar la aplicación."""
         self.exit_requested.emit()
+
+    def backup_database(self):
+        """M10: Crea una copia de seguridad de la base de datos."""
+        db = DBManager()
+        source = db.db_file
+        
+        dest, _ = QFileDialog.getSaveFileName(
+            self, "Guardar copia de seguridad", "formexa_backup.db",
+            "Base de datos SQLite (*.db)"
+        )
+        
+        if dest:
+            try:
+                shutil.copy2(source, dest)
+                MessageBoxHelper.show_info(self, "Éxito", "Copia de seguridad creada correctamente.")
+            except Exception as e:
+                MessageBoxHelper.show_warning(self, "Error", f"No se pudo crear la copia: {str(e)}")
 
     def on_language_changed(self, index):
         """Maneja el cambio de idioma."""
