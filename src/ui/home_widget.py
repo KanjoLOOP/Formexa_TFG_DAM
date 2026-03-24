@@ -6,6 +6,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from src.logic.inventory_manager import InventoryManager
 from src.logic.library_manager import LibraryManager
+from src.logic.project_manager import ProjectManager
 from src.ui.notifications_panel import NotificationsPanel
 
 
@@ -16,6 +17,7 @@ class HomeWidget(QWidget):
         self.user_id = user_id
         self.inventory_manager = InventoryManager()
         self.library_manager = LibraryManager()
+        self.project_manager = ProjectManager()
         self.init_ui()
 
     def init_ui(self):
@@ -48,10 +50,14 @@ class HomeWidget(QWidget):
         
         main_layout.addLayout(content_layout)
 
+        # --- NUEVO: Gráfico de Costes por Proyecto ---
+        costs_panel = self.create_costs_panel()
+        main_layout.addWidget(costs_panel)
+
         # --- Panel de Notificaciones Inteligentes ---
         # M8/C5c: Pasamos user_id para mostrar estadísticas reales del usuario
         self.notifications_panel = NotificationsPanel(user_id=self.user_id)
-        self.notifications_panel.setFixedHeight(220) 
+        self.notifications_panel.setFixedHeight(220)
         main_layout.addWidget(self.notifications_panel)
         
         self.setLayout(main_layout)
@@ -444,10 +450,97 @@ class HomeWidget(QWidget):
         
         return panel
 
+    def create_costs_panel(self):
+        """Panel con gráfico de barras de costes por proyecto."""
+        panel = QFrame()
+        panel.setObjectName("Card")
+        panel.setFixedHeight(280)
+
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(15, 15, 15, 15)
+
+        title = QLabel("Costes por Proyecto")
+        title.setStyleSheet("font-size: 16px; font-weight: 600; color: #e0e0e0; border: none;")
+        layout.addWidget(title)
+
+        # Gráfico de barras horizontales
+        self.figure_costs = Figure(figsize=(10, 3), dpi=100, facecolor='#2a2a2a')
+        self.canvas_costs = FigureCanvas(self.figure_costs)
+        self.canvas_costs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.ax_costs = self.figure_costs.add_subplot(111)
+
+        self.update_costs_chart()
+        layout.addWidget(self.canvas_costs)
+
+        return panel
+
+    def update_costs_chart(self):
+        """Actualiza el gráfico de costes por proyecto."""
+        self.ax_costs.clear()
+
+        projects = []
+        if self.user_id and self.user_id != -1:
+            all_projects = self.project_manager.get_all_projects(self.user_id)
+            # Filtrar proyectos con coste > 0
+            projects = [p for p in all_projects if p[6] and p[6] > 0]
+
+        if projects:
+            # Tomar los últimos 8 (ya vienen ordenados por fecha DESC, invertimos para que el más reciente esté arriba)
+            projects = projects[:8][::-1]
+
+            names = [p[1][:20] for p in projects]  # Truncar nombres largos
+            filament_costs = [p[7] or 0 for p in projects]
+            energy_costs = [p[8] or 0 for p in projects]
+
+            y_pos = range(len(names))
+
+            # Barras apiladas horizontales
+            self.ax_costs.barh(y_pos, filament_costs, height=0.6,
+                               color='#0288d1', label='Filamento')
+            self.ax_costs.barh(y_pos, energy_costs, height=0.6,
+                               left=filament_costs, color='#f57c00', label='Energía')
+
+            # Texto con el coste total a la derecha de cada barra
+            for i, (fc, ec) in enumerate(zip(filament_costs, energy_costs)):
+                total = fc + ec
+                self.ax_costs.text(total + 0.05, i, f"{total:.2f} €",
+                                   va='center', fontsize=9, color='#e0e0e0')
+
+            self.ax_costs.set_yticks(list(y_pos))
+            self.ax_costs.set_yticklabels(names, fontsize=9, color='#b0b0b0')
+            self.ax_costs.tick_params(axis='x', colors='#b0b0b0', labelsize=8)
+            self.ax_costs.set_xlabel('Coste (€)', fontsize=9, color='#b0b0b0')
+
+            # Leyenda
+            self.ax_costs.legend(loc='lower right', frameon=False,
+                                 fontsize=8, labelcolor='#b0b0b0')
+
+            # Ajustar márgenes para que se vean los textos de coste
+            max_cost = max(fc + ec for fc, ec in zip(filament_costs, energy_costs))
+            self.ax_costs.set_xlim(0, max_cost * 1.25)
+        else:
+            self.ax_costs.text(0.5, 0.5, 'Sin datos de costes aún',
+                               ha='center', va='center',
+                               fontsize=12, color='#546e7a',
+                               transform=self.ax_costs.transAxes)
+
+        # Estilo Dark Mode
+        self.ax_costs.set_facecolor('#2a2a2a')
+        self.ax_costs.spines['top'].set_visible(False)
+        self.ax_costs.spines['right'].set_visible(False)
+        self.ax_costs.spines['bottom'].set_color('#404040')
+        self.ax_costs.spines['left'].set_color('#404040')
+        self.figure_costs.patch.set_facecolor('#2a2a2a')
+        self.figure_costs.subplots_adjust(left=0.25, right=0.88, top=0.95, bottom=0.2)
+
+        self.canvas_costs.draw()
+
     def refresh_dashboard(self):
         """Actualiza todos los elementos del dashboard."""
         self.update_materials_chart()
         self.update_colors_chart()
+        if hasattr(self, 'ax_costs'):
+            self.update_costs_chart()
         if hasattr(self, 'notifications_panel'):
             self.notifications_panel.refresh_data()
 
