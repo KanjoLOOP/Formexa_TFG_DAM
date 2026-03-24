@@ -2,6 +2,22 @@
 
 ## Registro de Cambios
 
+### Versión 1.0.0 (24/03/2026) - Entrega Final
+
+#### [RF3] Gestión Automática de Inventario
+- ✅ **Descuento Automático**: El peso del filamento se descuenta ahora automáticamente al marcar un proyecto como "Completado".
+- ✅ **Protección de Datos**: Lógica implementada para evitar descuentos duplicados si se guarda un proyecto ya completado.
+- ✅ **Cálculo de Costes**: Corregido bug en el índice de precio del filamento para cálculos precisos.
+
+#### Dashboard y Estadísticas
+- ✅ **Gráfico de Costes**: Nuevo gráfico de barras horizontales apiladas que muestra el coste de filamento vs energía de los últimos 8 proyectos.
+- ✅ **Estadísticas Reales**: Los datos se filtran por usuario para mostrar información personalizada.
+
+#### Despliegue
+- ✅ **GitHub Actions**: Configuración automatizada de CI/CD para generar instaladores `.exe` tras cada tag de versión.
+- ✅ **Inno Setup**: Actualización de la configuración del instalador para la versión 1.0.0.
+
+
 ### Versión 0.2.0 (28/11/2025)
 
 #### Autenticación y Seguridad

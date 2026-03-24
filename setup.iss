@@ -1,5 +1,5 @@
 #define MyAppName "Formexa3D"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "Formexa3D"
 #define MyAppExeName "Formexa3D.exe"
 

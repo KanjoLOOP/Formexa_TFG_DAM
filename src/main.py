@@ -1,6 +1,8 @@
 import sys
 import os
 
+__version__ = "1.0.0"
+
 # Añadir el directorio raíz al path para que funcionen los imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
