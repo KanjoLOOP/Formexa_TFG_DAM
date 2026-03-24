@@ -438,7 +438,7 @@ class ProjectDialog(QDialog):
             # Obtener precio del filamento
             filament = self.inventory_manager.get_filament_by_id(filament_id)
             if filament:
-                price_per_kg = filament[7]  # price
+                price_per_kg = filament[8]  # price (índice 8 según schema)
                 costs = self.project_manager.calculate_costs(weight, price_per_kg, time_hours)
         
         if self.is_edit:
@@ -460,6 +460,16 @@ class ProjectDialog(QDialog):
                 **costs,
                 **extra_fields
             )
+            
+            if success:
+                # RF3: Descontar filamento al completar (solo si NO estaba ya completado)
+                was_completed = self.project[3] == "Completado"
+                if status == "Completado" and not was_completed and filament_id and weight > 0:
+                    filament = self.inventory_manager.get_filament_by_id(filament_id)
+                    if filament:
+                        peso_actual = filament[7]  # weight_current
+                        nuevo_peso = max(0, peso_actual - weight)
+                        self.inventory_manager.update_filament_weight(filament_id, nuevo_peso)
         else:
             # Crear nuevo proyecto
             success, message = self.project_manager.create_project(
@@ -467,13 +477,21 @@ class ProjectDialog(QDialog):
                 weight, time_hours, status
             )
             
-            # Actualizar costes
+            # Actualizar costes y RF3
             if success:
                 # Obtener el ID del proyecto recién creado y actualizar costes
                 projects = self.project_manager.get_all_projects(self.user_id)
                 if projects:
                     latest_project_id = projects[0][0]
                     self.project_manager.update_project(latest_project_id, **costs)
+                
+                # RF3: Descontar filamento si el proyecto se crea directamente como "Completado"
+                if status == "Completado" and filament_id and weight > 0:
+                    filament = self.inventory_manager.get_filament_by_id(filament_id)
+                    if filament:
+                        peso_actual = filament[7]  # weight_current
+                        nuevo_peso = max(0, peso_actual - weight)
+                        self.inventory_manager.update_filament_weight(filament_id, nuevo_peso)
         
         if success:
             self.accept()
