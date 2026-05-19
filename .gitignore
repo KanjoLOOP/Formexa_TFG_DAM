@@ -1,53 +1,40 @@
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
-env/
-venv/
-ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
 
-# Base de datos
+# Virtual env
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Build
+build/
+dist/
+*.spec
+installer_output/
+
+# Binarios distribuibles
+*.exe
+*.msi
+
+# Bases de datos locales
 *.db
 *.sqlite
 *.sqlite3
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
 # Logs
+logs/
 *.log
 debug_log.txt
-logs/
 
-# Temporal
-init_db_script.py
-
-session.json
-
-*.exe
-installer_output/
+# Datos runtime
+data/
