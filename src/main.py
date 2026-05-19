@@ -1,3 +1,4 @@
+
 import sys
 import os
 
@@ -58,7 +59,9 @@ class App:
         except Exception as e:
             self.log_debug(f"Error Genérico verificando BD: {e}")
             needs_init = True
-            
+        finally:
+            db.disconnect()
+
         # 2. Inicializar si es necesario
         if needs_init:
             self.log_debug("Se requiere inicialización de BD.")
@@ -116,13 +119,33 @@ class App:
             if not db.init_db(schema_path):
                 self.log_debug("ADVERTENCIA: db.init_db devolvió False")
                 self._show_warning(
-                    "Error de Inicialización", 
+                    "Error de Inicialización",
                     f"No se pudo crear la base de datos.\n\n"
                     f"Puedes continuar usando el Modo Invitado (solo calculadora).\n\n"
                     f"Revisa debug_log.txt para más detalles."
                 )
             else:
                 self.log_debug("db.init_db devolvió True. Inicialización exitosa.")
+            db.disconnect()
+
+        # Idempotent migration: ensure user_tokens table exists on pre-existing DBs
+        try:
+            if db.connect():
+                db.connection.execute("""
+                    CREATE TABLE IF NOT EXISTS user_tokens (
+                        token TEXT PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        expires_at TIMESTAMP NOT NULL,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                db.connection.commit()
+                self.log_debug("Migration user_tokens: OK")
+        except Exception as e:
+            self.log_debug(f"Migration user_tokens: {e}")
+        finally:
+            db.disconnect()
 
     def log_debug(self, msg):
         """Escribe mensaje en debug_log.txt junto al ejecutable."""

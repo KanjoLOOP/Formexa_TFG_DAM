@@ -1,63 +1,83 @@
 import json
 import os
-import hashlib
+import secrets
+from datetime import datetime, timedelta
+
+from src.database.db_manager import DBManager
 from src.utils.logger import logger
 
+
 class SessionManager:
-    """Gestor de sesión para recordar credenciales."""
-    
-    # .../src/logic/session_manager.py -> .../src/logic -> .../src -> .../ (Project Root)
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    SESSION_FILE = os.path.join(BASE_DIR, "data", "session.json")
-    
+
     @staticmethod
-    def save_session(username, password):
-        """Guarda el usuario y un token derivado de la contraseña (no la contraseña en claro).
-        
-        El token se genera con SHA-256 sobre username + password + salt fijo.
-        De esta forma nunca se almacena la contraseña real en el archivo JSON.
-        """
-        # C4: Generamos un token simple — nunca guardamos la contraseña en texto plano
-        token = hashlib.sha256((username + password + "formexa_salt").encode()).hexdigest()
-        data = {
-            "username": username,
-            "token": token
-        }
+    def _get_session_file() -> str:
+        app_data_dir = DBManager._get_user_data_dir()
+        return os.path.join(app_data_dir, 'session.json')
+
+    @staticmethod
+    def save_session(user_id: int) -> bool:
+        token = secrets.token_urlsafe(32)
+        expires_at = (datetime.now() + timedelta(days=30)).isoformat()
+        db = DBManager()
         try:
-            with open(SessionManager.SESSION_FILE, 'w') as f:
-                json.dump(data, f)
+            db.execute_query(
+                "INSERT INTO user_tokens (token, user_id, expires_at) VALUES (?, ?, ?)",
+                (token, user_id, expires_at)
+            )
+            session_file = SessionManager._get_session_file()
+            with open(session_file, 'w') as f:
+                json.dump({"token": token}, f)
             return True
         except Exception as e:
             logger.error(f"Error guardando sesión: {e}")
             return False
-            
+
     @staticmethod
     def load_session():
-        """Carga la sesión guardada.
-        
-        Returns:
-            tuple: (username, token) o (None, None) si no hay sesión guardada.
-        """
-        if not os.path.exists(SessionManager.SESSION_FILE):
-            return None, None
-            
+        """Returns user_id if a valid, unexpired token exists, else None."""
+        session_file = SessionManager._get_session_file()
+        if not os.path.exists(session_file):
+            return None
         try:
-            with open(SessionManager.SESSION_FILE, 'r') as f:
+            with open(session_file, 'r') as f:
                 data = json.load(f)
-                # C4: Devolvemos username y token, nunca la contraseña
-                return data.get("username"), data.get("token")
+            token = data.get("token")
+            if not token:
+                return None
+            db = DBManager()
+            result = db.fetch_one(
+                "SELECT user_id, expires_at FROM user_tokens WHERE token = ?",
+                (token,)
+            )
+            if not result:
+                return None
+            user_id, expires_at_str = result
+            if datetime.fromisoformat(expires_at_str) < datetime.now():
+                db.execute_query("DELETE FROM user_tokens WHERE token = ?", (token,))
+                os.remove(session_file)
+                return None
+            return user_id
         except Exception as e:
             logger.error(f"Error cargando sesión: {e}")
-            return None, None
-            
+            return None
+
     @staticmethod
-    def clear_session():
-        """Borra el archivo de sesión."""
-        if os.path.exists(SessionManager.SESSION_FILE):
-            try:
-                os.remove(SessionManager.SESSION_FILE)
-                return True
-            except Exception as e:
-                logger.error(f"Error borrando sesión: {e}")
-                return False
-        return True
+    def clear_session() -> bool:
+        session_file = SessionManager._get_session_file()
+        try:
+            if os.path.exists(session_file):
+                try:
+                    with open(session_file, 'r') as f:
+                        data = json.load(f)
+                    token = data.get("token")
+                    if token:
+                        DBManager().execute_query(
+                            "DELETE FROM user_tokens WHERE token = ?", (token,)
+                        )
+                except Exception:
+                    pass
+                os.remove(session_file)
+            return True
+        except Exception as e:
+            logger.error(f"Error borrando sesión: {e}")
+            return False

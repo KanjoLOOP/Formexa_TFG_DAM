@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS models (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Tabla de tokens de sesión persistente
+CREATE TABLE IF NOT EXISTS user_tokens (
+    token TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Tabla de Proyectos
 CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

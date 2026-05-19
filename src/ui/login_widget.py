@@ -183,17 +183,12 @@ class LoginWidget(QWidget):
         self.setLayout(layout)
     
     def load_saved_session(self):
-        """Carga la sesión guardada si existe.
-        
-        C4: Solo pre-rellena el campo de usuario, nunca la contraseña.
-        La contraseña siempre la tiene que escribir el usuario manualmente.
-        """
-        username, token = SessionManager.load_session()
-        # Comprobamos que hay un token válido (sesión guardada correctamente)
-        if username and token:
-            self.username_input.setText(username)
-            # Marcamos la casilla pero NO rellenamos la contraseña por seguridad
-            self.remember_me.setChecked(True)
+        """Auto-login if a valid session token exists in APPDATA."""
+        user_id = SessionManager.load_session()
+        if user_id is not None:
+            if self.auth_manager.login_from_session(user_id):
+                user = self.auth_manager.get_current_user()
+                self.login_successful.emit(user)
 
     def toggle_mode(self):
         """Alterna entre modo login y registro."""
@@ -233,13 +228,11 @@ class LoginWidget(QWidget):
             success, message = self.auth_manager.login(username, password)
             
             if success:
-                # Gestionar "Recuérdame"
+                user = self.auth_manager.get_current_user()
                 if self.remember_me.isChecked():
-                    SessionManager.save_session(username, password)
+                    SessionManager.save_session(user['id'])
                 else:
                     SessionManager.clear_session()
-                    
-                user = self.auth_manager.get_current_user()
                 self.login_successful.emit(user)
             else:
                 self.show_message("Error", message, QMessageBox.Warning)
