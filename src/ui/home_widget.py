@@ -280,19 +280,7 @@ class HomeWidget(QWidget):
     def create_model_item(self, name):
         """Crea un item de modelo."""
         item = QFrame()
-        item.setStyleSheet("""
-            QFrame {
-                background-color: #333333;
-                border-radius: 6px;
-                padding: 8px;
-                margin: 4px 0;
-                border: 1px solid #404040;
-            }
-            QFrame:hover {
-                background-color: #404040;
-                border: 1px solid #505050;
-            }
-        """)
+        item.setObjectName("ModelItem")
         
         layout = QHBoxLayout(item)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -481,16 +469,14 @@ class HomeWidget(QWidget):
         projects = []
         if self.user_id and self.user_id != -1:
             all_projects = self.project_manager.get_all_projects(self.user_id)
-            # Filtrar proyectos con coste > 0
-            projects = [p for p in all_projects if p[6] and p[6] > 0]
+            projects = [p for p in all_projects if p.get('total_cost') and p['total_cost'] > 0]
 
         if projects:
-            # Tomar los últimos 8 (ya vienen ordenados por fecha DESC, invertimos para que el más reciente esté arriba)
             projects = projects[:8][::-1]
 
-            names = [p[1][:20] for p in projects]  # Truncar nombres largos
-            filament_costs = [p[7] or 0 for p in projects]
-            energy_costs = [p[8] or 0 for p in projects]
+            names = [p['name'][:20] for p in projects]
+            filament_costs = [p['filament_cost'] or 0 for p in projects]
+            energy_costs = [p['energy_cost'] or 0 for p in projects]
 
             y_pos = range(len(names))
 
