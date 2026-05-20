@@ -1,30 +1,28 @@
-import unittest
-import sys
-import os
-
-# Asegurar path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+import pytest
 from src.logic.cost_calculator import CostCalculator
 
-class TestCostCalculator(unittest.TestCase):
-    def setUp(self):
-        self.calculator = CostCalculator()
 
-    def test_calculate_filament_cost(self):
-        # 100g, 20€/kg -> 20 * (100/1000) = 2€
-        cost = self.calculator.calculate_filament_cost(100, 20)
-        self.assertAlmostEqual(cost, 2.0)
+@pytest.fixture
+def calc():
+    return CostCalculator()
 
-    def test_calculate_energy_cost(self):
-        # 200W, 1 hour, 0.15€/kWh -> (200/1000) * 1 * 0.15 = 0.03€
-        cost = self.calculator.calculate_energy_cost(200, 1, 0.15)
-        self.assertAlmostEqual(cost, 0.03)
 
-    def test_total_cost(self):
-        # 2€ material + 0.03€ energia = 2.03
-        total = self.calculator.calculate_total_cost(filament_cost=2.0, energy_cost=0.03, additional_costs=0)
-        self.assertAlmostEqual(total, 2.03)
+def test_filament_cost(calc):
+    assert calc.calculate_filament_cost(100, 20) == pytest.approx(2.0)
 
-if __name__ == '__main__':
-    unittest.main()
+
+def test_energy_cost(calc):
+    assert calc.calculate_energy_cost(200, 1, 0.15) == pytest.approx(0.03)
+
+
+def test_total_cost(calc):
+    total = calc.calculate_total_cost(filament_cost=2.0, energy_cost=0.03, additional_costs=0)
+    assert total == pytest.approx(2.03)
+
+
+def test_zero_weight_filament_cost(calc):
+    assert calc.calculate_filament_cost(0, 20) == pytest.approx(0.0)
+
+
+def test_zero_time_energy_cost(calc):
+    assert calc.calculate_energy_cost(200, 0, 0.15) == pytest.approx(0.0)
