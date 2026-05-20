@@ -19,8 +19,8 @@ env/
 # Build
 build/
 dist/
-*.spec
 installer_output/
+# Formexa3D.spec is intentionally versioned — do NOT add *.spec here
 
 # Binarios distribuibles
 *.exe
@@ -30,6 +30,10 @@ installer_output/
 *.db
 *.sqlite
 *.sqlite3
+
+# Coverage
+.coverage
+htmlcov/
 
 # Logs
 logs/
