@@ -29,11 +29,6 @@ class MainWindow(QMainWindow):
         # Cargar estilos
         self.load_styles()
         
-        # Conectar traductor
-        translator.language_changed.connect(self.retranslate_ui)
-        # Cargar idioma guardado
-        translator.load_saved_language()
-
         # Stack Principal (Login vs App)
         self.central_stack = QStackedWidget()
         self.setCentralWidget(self.central_stack)
@@ -48,6 +43,10 @@ class MainWindow(QMainWindow):
         self.main_app_widget = QWidget()
         self.setup_main_app_ui()
         self.central_stack.addWidget(self.main_app_widget)
+
+        # Conectar traductor después de crear botones
+        translator.language_changed.connect(self.retranslate_ui)
+        translator.load_saved_language()
 
         # Mostrar Login inicialmente
         self.central_stack.setCurrentWidget(self.login_widget)
@@ -122,7 +121,8 @@ class MainWindow(QMainWindow):
             with open(style_path, 'r') as f:
                 self.setStyleSheet(f.read())
         except FileNotFoundError:
-            print(f"No se encontró el archivo de estilos: {style_path}")
+            from src.utils.logger import logger
+            logger.warning(f"No se encontró el archivo de estilos: {style_path}")
 
     def create_side_menu(self):
         """Crea el panel lateral de navegación."""
@@ -205,9 +205,12 @@ class MainWindow(QMainWindow):
         else:
             self.setWindowTitle(tr('app_title'))
         
+        if not hasattr(self, 'btn_home'):
+            return
+
         # Botones de menú
         menu_keys = ['home', 'calculator', 'library', 'inventory', 'projects', 'marketplace', 'settings']
-        buttons = [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory, 
+        buttons = [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory,
                   self.btn_projects, self.btn_market, self.btn_settings]
         
         for btn, key in zip(buttons, menu_keys):
