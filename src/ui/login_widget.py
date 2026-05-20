@@ -56,120 +56,52 @@ class LoginWidget(QWidget):
         # Campos de entrada
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Usuario")
-        self.username_input.setStyleSheet("""
-            QLineEdit {
-                background-color: #2C2C2C;
-                border: 1px solid #444;
-                border-radius: 6px;
-                padding: 12px;
-                color: white;
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid #007BFF;
-            }
-        """)
+        self.username_input.setObjectName("input_login")
         container_layout.addWidget(self.username_input)
-        
+
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Contraseña")
         self.password_input.setEchoMode(QLineEdit.Password)
-        self.password_input.setStyleSheet(self.username_input.styleSheet())
+        self.password_input.setObjectName("input_login")
         self.password_input.returnPressed.connect(self.handle_login_or_register)
         container_layout.addWidget(self.password_input)
-        
+
         # Campo email (solo para registro)
         self.email_input = QLineEdit()
         self.email_input.setPlaceholderText("Email (opcional)")
-        self.email_input.setStyleSheet(self.username_input.styleSheet())
+        self.email_input.setObjectName("input_login")
         self.email_input.setVisible(False)
         container_layout.addWidget(self.email_input)
-        
+
         # Checkbox Recuérdame
         self.remember_me = QCheckBox("Recuérdame")
-        self.remember_me.setStyleSheet("""
-            QCheckBox {
-                color: #ccc;
-                spacing: 8px;
-            }
-            QCheckBox::indicator {
-                width: 18px;
-                height: 18px;
-                border: 1px solid #555;
-                border-radius: 4px;
-                background-color: #2C2C2C;
-            }
-            QCheckBox::indicator:checked {
-                background-color: #007BFF;
-                border: 1px solid #007BFF;
-                image: url(assets/check_icon.png); /* Opcional, si tienes icono */
-            }
-        """)
+        self.remember_me.setObjectName("remember_me")
         container_layout.addWidget(self.remember_me)
-        
+
         # Botón principal (Login/Registrar)
         self.btn_main = QPushButton("Iniciar Sesión")
         self.btn_main.setCursor(Qt.PointingHandCursor)
-        self.btn_main.setStyleSheet("""
-            QPushButton {
-                background-color: #007BFF;
-                color: white;
-                border-radius: 6px;
-                padding: 12px;
-                font-weight: bold;
-                font-size: 14px;
-                border: none;
-            }
-            QPushButton:hover {
-                background-color: #1a8cff;
-            }
-            QPushButton:pressed {
-                background-color: #0056b3;
-            }
-        """)
+        self.btn_main.setObjectName("btn_primary")
         self.btn_main.clicked.connect(self.handle_login_or_register)
         container_layout.addWidget(self.btn_main)
-        
+
         # Botón toggle (Registrarse/Volver a Login)
         self.btn_toggle = QPushButton("¿No tienes cuenta? Regístrate")
         self.btn_toggle.setCursor(Qt.PointingHandCursor)
-        self.btn_toggle.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #007BFF;
-                border: none;
-                padding: 8px;
-                font-size: 13px;
-            }
-            QPushButton:hover {
-                text-decoration: underline;
-            }
-        """)
+        self.btn_toggle.setObjectName("btn_link")
         self.btn_toggle.clicked.connect(self.toggle_mode)
         container_layout.addWidget(self.btn_toggle)
-        
+
         # Separador
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)
         separator.setStyleSheet("background-color: #444; margin: 10px 0;")
         container_layout.addWidget(separator)
-        
+
         # Botón invitado
         btn_guest = QPushButton("Continuar como Invitado")
         btn_guest.setCursor(Qt.PointingHandCursor)
-        btn_guest.setStyleSheet("""
-            QPushButton {
-                background-color: #444;
-                color: #ccc;
-                border-radius: 6px;
-                padding: 12px;
-                font-size: 14px;
-                border: none;
-            }
-            QPushButton:hover {
-                background-color: #555;
-            }
-        """)
+        btn_guest.setObjectName("btn_guest")
         btn_guest.clicked.connect(self.handle_guest_login)
         container_layout.addWidget(btn_guest)
         
