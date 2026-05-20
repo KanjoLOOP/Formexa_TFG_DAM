@@ -113,6 +113,85 @@ class ReportGenerator:
         doc.build(elements)
         return True
 
+    def generate_quote_pdf(self, order, customer, project, output_path):
+        """Genera un presupuesto/factura PDF para un pedido."""
+        doc = SimpleDocTemplate(output_path, pagesize=letter)
+        elements = []
+
+        is_delivered = order.get('status') == 'Entregado'
+        doc_type = "FACTURA" if is_delivered else "PRESUPUESTO"
+
+        elements.append(Paragraph(f"{doc_type} — Formexa", self.styles['TitleCustom']))
+        elements.append(Paragraph(
+            f"Fecha: {datetime.now().strftime('%d/%m/%Y')}   |   "
+            f"Estado: {order.get('status', '-')}",
+            self.styles['NormalCustom']
+        ))
+        elements.append(Spacer(1, 20))
+
+        # Cliente
+        elements.append(Paragraph("Cliente", self.styles['Heading2Custom']))
+        elements.append(Paragraph(f"<b>Nombre:</b> {customer.get('name', '-')}", self.styles['NormalCustom']))
+        if customer.get('email'):
+            elements.append(Paragraph(f"<b>Email:</b> {customer['email']}", self.styles['NormalCustom']))
+        if customer.get('phone'):
+            elements.append(Paragraph(f"<b>Teléfono:</b> {customer['phone']}", self.styles['NormalCustom']))
+        if customer.get('address'):
+            elements.append(Paragraph(f"<b>Dirección:</b> {customer['address']}", self.styles['NormalCustom']))
+        elements.append(Spacer(1, 15))
+
+        # Proyecto vinculado
+        if project:
+            elements.append(Paragraph("Proyecto de Impresión", self.styles['Heading2Custom']))
+            elements.append(Paragraph(f"<b>Proyecto:</b> {project.get('name', '-')}", self.styles['NormalCustom']))
+            if project.get('description'):
+                elements.append(Paragraph(f"<b>Descripción:</b> {project['description']}", self.styles['NormalCustom']))
+            if project.get('weight_grams'):
+                elements.append(Paragraph(f"<b>Peso:</b> {project['weight_grams']} g", self.styles['NormalCustom']))
+            if project.get('print_time_hours'):
+                elements.append(Paragraph(f"<b>Tiempo impresión:</b> {project['print_time_hours']} h", self.styles['NormalCustom']))
+            elements.append(Spacer(1, 15))
+
+        # Desglose de precio
+        elements.append(Paragraph("Desglose de Precio", self.styles['Heading2Custom']))
+        price_data = [
+            ["Concepto", "Cant.", "Precio unitario", "Total"],
+            [
+                "Impresión 3D",
+                str(order.get('quantity', 1)),
+                f"{order.get('unit_price', 0):.2f} €",
+                f"{order.get('total_price', 0):.2f} €",
+            ],
+            ["", "", "TOTAL", f"{order.get('total_price', 0):.2f} €"],
+        ]
+        col_widths = [3 * inch, 0.8 * inch, 1.6 * inch, 1.6 * inch]
+        t = Table(price_data, colWidths=col_widths)
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2C3E50')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+            ('BACKGROUND', (0, 1), (-1, -2), colors.HexColor('#ECF0F1')),
+            ('BACKGROUND', (2, -1), (-1, -1), colors.HexColor('#D5F5E3')),
+            ('FONTNAME', (2, -1), (-1, -1), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -2), 1, colors.black),
+            ('BOX', (0, -1), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(t)
+
+        if order.get('delivery_date'):
+            elements.append(Spacer(1, 10))
+            elements.append(Paragraph(
+                f"<b>Fecha de entrega:</b> {order['delivery_date']}",
+                self.styles['NormalCustom']
+            ))
+
+        elements.append(Spacer(1, 40))
+        elements.append(Paragraph("Generado por Formexa", self.styles['NormalCustom']))
+
+        doc.build(elements)
+        return True
+
     def generate_stats_report(self, user_name, stats, output_path):
         """Genera un informe de estadísticas de proyectos."""
         doc = SimpleDocTemplate(output_path, pagesize=letter)

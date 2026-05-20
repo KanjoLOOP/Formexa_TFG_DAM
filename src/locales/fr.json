@@ -7,6 +7,8 @@
         "inventory": "Inventaire",
         "projects": "Projets",
         "marketplace": "Marché",
+        "customers": "Clients",
+        "orders": "Commandes",
         "settings": "Paramètres"
     },
     "login": {

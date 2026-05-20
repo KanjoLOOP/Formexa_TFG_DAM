@@ -69,6 +69,37 @@ CREATE TABLE IF NOT EXISTS projects (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Tabla de Clientes
+CREATE TABLE IF NOT EXISTS customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    address TEXT,
+    notes TEXT,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabla de Pedidos
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
+    project_id INTEGER,
+    status TEXT DEFAULT 'Presupuesto',
+    quantity INTEGER DEFAULT 1,
+    unit_price REAL NOT NULL,
+    total_price REAL NOT NULL,
+    delivery_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delivered_at TIMESTAMP,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Índices
 CREATE INDEX IF NOT EXISTS idx_filaments_user ON filaments(user_id);
 CREATE INDEX IF NOT EXISTS idx_models_user ON models(user_id);
@@ -76,3 +107,6 @@ CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 CREATE INDEX IF NOT EXISTS idx_projects_user_status ON projects(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_user_tokens_user ON user_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_customers_user ON customers(user_id);

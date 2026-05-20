@@ -13,7 +13,20 @@ from src.ui.inventory_widget import InventoryWidget
 from src.ui.marketplace_widget import MarketplaceWidget
 from src.ui.settings_widget import SettingsWidget
 from src.ui.projects_widget import ProjectsWidget
+from src.ui.customers_widget import CustomersWidget
+from src.ui.orders_widget import OrdersWidget
 from src.utils.translator import translator
+
+# Page indexes
+_IDX_HOME = 0
+_IDX_CALC = 1
+_IDX_LIBRARY = 2
+_IDX_INVENTORY = 3
+_IDX_PROJECTS = 4
+_IDX_MARKET = 5
+_IDX_CUSTOMERS = 6
+_IDX_ORDERS = 7
+_IDX_SETTINGS = 8
 
 class MainWindow(QMainWindow):
     logout_requested = pyqtSignal()  # Señal para volver al login
@@ -99,20 +112,25 @@ class MainWindow(QMainWindow):
         self.inventory_widget = InventoryWidget(user_id=user_id)
         self.projects_widget = ProjectsWidget(self.auth_manager)
         self.market_widget = MarketplaceWidget()
+        self.customers_widget = CustomersWidget(user_id=user_id)
+        self.orders_widget = OrdersWidget(user_id=user_id)
         self.settings_widget = SettingsWidget()
-        
+
         # Conectar señales
         self.inventory_widget.data_changed.connect(self.home_widget.refresh_dashboard)
         self.settings_widget.logout_requested.connect(self.handle_logout)
         self.settings_widget.exit_requested.connect(self.handle_exit)
 
-        self.content_area.addWidget(self.home_widget)
-        self.content_area.addWidget(self.calc_widget)
-        self.content_area.addWidget(self.library_widget)
-        self.content_area.addWidget(self.inventory_widget)
-        self.content_area.addWidget(self.projects_widget)
-        self.content_area.addWidget(self.market_widget)
-        self.content_area.addWidget(self.settings_widget)
+        # Orden debe coincidir con _IDX_* constantes
+        self.content_area.addWidget(self.home_widget)        # 0
+        self.content_area.addWidget(self.calc_widget)        # 1
+        self.content_area.addWidget(self.library_widget)     # 2
+        self.content_area.addWidget(self.inventory_widget)   # 3
+        self.content_area.addWidget(self.projects_widget)    # 4
+        self.content_area.addWidget(self.market_widget)      # 5
+        self.content_area.addWidget(self.customers_widget)   # 6
+        self.content_area.addWidget(self.orders_widget)      # 7
+        self.content_area.addWidget(self.settings_widget)    # 8
 
     def load_styles(self):
         """Carga el archivo QSS."""
@@ -158,12 +176,14 @@ class MainWindow(QMainWindow):
 
         # Botones de navegación
         tr = translator.tr
-        self.btn_home = self.create_menu_button(tr('menu.home'), 0)
-        self.btn_calc = self.create_menu_button(tr('menu.calculator'), 1)
-        self.btn_library = self.create_menu_button(tr('menu.library'), 2)
-        self.btn_inventory = self.create_menu_button(tr('menu.inventory'), 3)
-        self.btn_projects = self.create_menu_button(tr('menu.projects'), 4)
-        self.btn_market = self.create_menu_button(tr('menu.marketplace'), 5)
+        self.btn_home = self.create_menu_button(tr('menu.home'), _IDX_HOME)
+        self.btn_calc = self.create_menu_button(tr('menu.calculator'), _IDX_CALC)
+        self.btn_library = self.create_menu_button(tr('menu.library'), _IDX_LIBRARY)
+        self.btn_inventory = self.create_menu_button(tr('menu.inventory'), _IDX_INVENTORY)
+        self.btn_projects = self.create_menu_button(tr('menu.projects'), _IDX_PROJECTS)
+        self.btn_market = self.create_menu_button(tr('menu.marketplace'), _IDX_MARKET)
+        self.btn_customers = self.create_menu_button(tr('menu.customers'), _IDX_CUSTOMERS)
+        self.btn_orders = self.create_menu_button(tr('menu.orders'), _IDX_ORDERS)
 
         layout.addWidget(self.btn_home)
         layout.addWidget(self.btn_calc)
@@ -171,9 +191,11 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.btn_inventory)
         layout.addWidget(self.btn_projects)
         layout.addWidget(self.btn_market)
-        
+        layout.addWidget(self.btn_customers)
+        layout.addWidget(self.btn_orders)
+
         # Configuración
-        self.btn_settings = self.create_menu_button(translator.tr('menu.settings'), 6)
+        self.btn_settings = self.create_menu_button(translator.tr('menu.settings'), _IDX_SETTINGS)
         layout.addWidget(self.btn_settings)
         
         layout.addStretch()
@@ -209,9 +231,11 @@ class MainWindow(QMainWindow):
             return
 
         # Botones de menú
-        menu_keys = ['home', 'calculator', 'library', 'inventory', 'projects', 'marketplace', 'settings']
+        menu_keys = ['home', 'calculator', 'library', 'inventory', 'projects',
+                     'marketplace', 'customers', 'orders', 'settings']
         buttons = [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory,
-                  self.btn_projects, self.btn_market, self.btn_settings]
+                   self.btn_projects, self.btn_market, self.btn_customers,
+                   self.btn_orders, self.btn_settings]
         
         for btn, key in zip(buttons, menu_keys):
             btn.setText(tr(f'menu.{key}'))
@@ -253,18 +277,18 @@ class MainWindow(QMainWindow):
 
     def switch_page(self, index, button):
         """Cambia la página visible y actualiza el estado de los botones."""
-        # Desmarcar todos los botones primero para evitar estados inconsistentes
-        for btn in [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory, 
-                   self.btn_projects, self.btn_market, self.btn_settings]:
+        all_btns = [self.btn_home, self.btn_calc, self.btn_library, self.btn_inventory,
+                    self.btn_projects, self.btn_market, self.btn_customers,
+                    self.btn_orders, self.btn_settings]
+        for btn in all_btns:
             btn.setChecked(False)
 
         # Verificar permisos de invitado
         if self.auth_manager.is_guest():
-            # Solo permitir calculadora (index 1) y configuración (index 6)
-            if index not in [1, 6]:
+            if index not in [_IDX_CALC, _IDX_SETTINGS]:
                 self.show_guest_restriction_message(index)
                 # Mantener en calculadora
-                self.content_area.setCurrentIndex(1)
+                self.content_area.setCurrentIndex(_IDX_CALC)
                 self.btn_calc.setChecked(True)
                 return
         
@@ -276,11 +300,13 @@ class MainWindow(QMainWindow):
     def show_guest_restriction_message(self, index):
         """Muestra mensaje informando que la función requiere login."""
         feature_names = {
-            0: "Dashboard",
-            2: "Biblioteca",
-            3: "Inventario",
-            4: "Proyectos",
-            5: "Marketplace"
+            _IDX_HOME: "Dashboard",
+            _IDX_LIBRARY: "Biblioteca",
+            _IDX_INVENTORY: "Inventario",
+            _IDX_PROJECTS: "Proyectos",
+            _IDX_MARKET: "Marketplace",
+            _IDX_CUSTOMERS: "Clientes",
+            _IDX_ORDERS: "Pedidos",
         }
         
         feature_name = feature_names.get(index, "esta funcionalidad")

@@ -89,10 +89,19 @@ class ProjectManager:
 
     def mark_as_completed(self, project_id):
         try:
-            self.db.execute(
-                "UPDATE projects SET status = 'Completado', completed_at = ? WHERE id = ?",
-                (datetime.now().isoformat(), project_id)
-            )
+            with self.db.transaction():
+                project = self.get_project_by_id(project_id)
+                if not project:
+                    raise ValueError("Proyecto no encontrado")
+                if project['filament_id'] and project['weight_grams']:
+                    self.db.execute(
+                        "UPDATE filaments SET weight_current = MAX(0, weight_current - ?) WHERE id = ?",
+                        (project['weight_grams'], project['filament_id'])
+                    )
+                self.db.execute(
+                    "UPDATE projects SET status = 'Completado', completed_at = ? WHERE id = ?",
+                    (datetime.now().isoformat(), project_id)
+                )
             return True, "Proyecto marcado como completado"
         except Exception as e:
             return False, f"Error: {str(e)}"
