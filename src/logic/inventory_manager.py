@@ -1,57 +1,47 @@
 from src.database.db_manager import DBManager
 
+
 class InventoryManager:
     def __init__(self, db_manager=None):
         self.db = db_manager or DBManager()
 
-    def add_filament(self, brand, material_type, color, weight_initial, price, user_id=None, diameter=1.75, density=1.24):
-        """Añade un nuevo rollo de filamento."""
-        # C5a: La query incluye user_id para que cada filamento pertenezca a un usuario
-        query = """
-            INSERT INTO filaments (brand, material_type, color, weight_initial, weight_current, price, diameter, density, user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
-        # Validación básica
+    def add_filament(self, brand, material_type, color, weight_initial, price,
+                     user_id=None, diameter=1.75, density=1.24):
         if weight_initial < 0 or price < 0:
             return False, "El peso y el precio no pueden ser negativos."
-
-        # Al inicio, peso actual = peso inicial
-        params = (brand, material_type, color, weight_initial, weight_initial, price, diameter, density, user_id)
-        
-        if self.db.execute_query(query, params):
+        try:
+            self.db.execute(
+                """INSERT INTO filaments
+                   (brand, material_type, color, weight_initial, weight_current,
+                    price, diameter, density, user_id)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (brand, material_type, color, weight_initial, weight_initial,
+                 price, diameter, density, user_id)
+            )
             return True, "Filamento añadido correctamente."
-        else:
+        except Exception:
             return False, "Error al añadir filamento."
 
     def get_all_filaments(self, user_id=None):
-        """Obtiene los filamentos, filtrando por usuario si se proporciona user_id.
-        
-        C5a: Si user_id no es None, devuelve solo los filamentos de ese usuario.
-        El usuario invitado (user_id=-1) no tiene filamentos propios.
-        """
         if user_id is not None:
-            query = "SELECT * FROM filaments WHERE user_id = ? ORDER BY id DESC"
-            return self.db.fetch_query(query, (user_id,))
-        else:
-            query = "SELECT * FROM filaments ORDER BY id DESC"
-            return self.db.fetch_query(query)
+            return self.db.query(
+                "SELECT * FROM filaments WHERE user_id = ? ORDER BY id DESC",
+                (user_id,)
+            )
+        return self.db.query("SELECT * FROM filaments ORDER BY id DESC")
 
     def update_filament_weight(self, filament_id, new_weight):
-        """Actualiza el peso restante de un filamento."""
-        query = "UPDATE filaments SET weight_current = ? WHERE id = ?"
-        if self.db.execute_query(query, (new_weight, filament_id)):
-            return True
-        return False
+        self.db.execute(
+            "UPDATE filaments SET weight_current = ? WHERE id = ?",
+            (new_weight, filament_id)
+        )
+        return True
 
     def delete_filament(self, filament_id):
-        """Elimina un filamento."""
-        query = "DELETE FROM filaments WHERE id = ?"
-        if self.db.execute_query(query, (filament_id,)):
-            return True
-        return False
-    
-    def get_filament_by_id(self, filament_id):
-        """Obtiene un filamento por ID."""
-        query = "SELECT * FROM filaments WHERE id = ?"
-        return self.db.fetch_one(query, (filament_id,))
+        self.db.execute("DELETE FROM filaments WHERE id = ?", (filament_id,))
+        return True
 
+    def get_filament_by_id(self, filament_id):
+        return self.db.query_one(
+            "SELECT * FROM filaments WHERE id = ?", (filament_id,)
+        )

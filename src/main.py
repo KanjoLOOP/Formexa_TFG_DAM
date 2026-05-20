@@ -48,11 +48,8 @@ class App:
                 self.log_debug("Fallo al conectar a BD")
                 needs_init = True
             else:
-                cursor = db.connection.cursor()
-                cursor.execute("SELECT count(*) FROM users")
-                rows = cursor.fetchone()
-                self.log_debug(f"Tabla users encontrada. Filas: {rows[0]}")
-                cursor.close()
+                row = db.query_one("SELECT count(*) as n FROM users")
+                self.log_debug(f"Tabla users encontrada. Filas: {row['n'] if row else '?'}")
         except sqlite3.OperationalError as e:
             self.log_debug(f"Error Operacional (tabla no existe?): {e}")
             needs_init = True
@@ -128,22 +125,14 @@ class App:
                 self.log_debug("db.init_db devolvió True. Inicialización exitosa.")
             db.disconnect()
 
-        # Idempotent migration: ensure user_tokens table exists on pre-existing DBs
+        # Run migrations for both fresh and existing DBs
         try:
+            from src.database.migrations import run_migrations
             if db.connect():
-                db.connection.execute("""
-                    CREATE TABLE IF NOT EXISTS user_tokens (
-                        token TEXT PRIMARY KEY,
-                        user_id INTEGER NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        expires_at TIMESTAMP NOT NULL,
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                    )
-                """)
-                db.connection.commit()
-                self.log_debug("Migration user_tokens: OK")
+                run_migrations(db)
+                self.log_debug("Migraciones completadas.")
         except Exception as e:
-            self.log_debug(f"Migration user_tokens: {e}")
+            self.log_debug(f"Error en migraciones: {e}")
         finally:
             db.disconnect()
 

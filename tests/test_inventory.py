@@ -15,18 +15,17 @@ class TestInventoryManager(unittest.TestCase):
         self.manager.db = MagicMock()
 
     def test_add_filament_valid(self):
-        self.manager.db.execute_query.return_value = True
+        self.manager.db.execute.return_value = 1
         success, msg = self.manager.add_filament("Brand", "PLA", "Red", 1000, 20.0)
         self.assertTrue(success)
         self.assertIn("correctamente", msg)
 
     def test_add_filament_invalid(self):
-        # Peso negativo
         success, msg = self.manager.add_filament("Brand", "PLA", "Red", -10, 20.0)
         self.assertFalse(success)
-        
+
     def test_get_all_filaments(self):
-        self.manager.db.fetch_query.return_value = [
+        self.manager.db.query.return_value = [
             {'id': 1, 'brand': 'BrandA'},
             {'id': 2, 'brand': 'BrandB'}
         ]

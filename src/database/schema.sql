@@ -15,13 +15,13 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS filaments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     brand TEXT NOT NULL,
-    material_type TEXT NOT NULL, -- PLA, PETG, ABS, etc.
+    material_type TEXT NOT NULL,
     color TEXT NOT NULL,
-    diameter REAL DEFAULT 1.75, -- mm
-    density REAL DEFAULT 1.24, -- g/cm3
-    weight_initial REAL NOT NULL, -- gramos (e.g., 1000g)
-    weight_current REAL NOT NULL, -- gramos
-    price REAL NOT NULL, -- Coste del rollo
+    diameter REAL DEFAULT 1.75,
+    density REAL DEFAULT 1.24,
+    weight_initial REAL NOT NULL,
+    weight_current REAL NOT NULL,
+    price REAL NOT NULL,
     purchase_date DATE,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS models (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT,
-    file_path TEXT NOT NULL, -- Ruta al archivo STL local
-    thumbnail_path TEXT, -- Ruta a la imagen generada
+    file_path TEXT NOT NULL,
+    thumbnail_path TEXT,
     added_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -69,3 +69,10 @@ CREATE TABLE IF NOT EXISTS projects (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_filaments_user ON filaments(user_id);
+CREATE INDEX IF NOT EXISTS idx_models_user ON models(user_id);
+CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id);
+CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
+CREATE INDEX IF NOT EXISTS idx_projects_user_status ON projects(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_user_tokens_user ON user_tokens(user_id);

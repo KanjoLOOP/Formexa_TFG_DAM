@@ -141,13 +141,13 @@ class ProjectsWidget(QWidget):
         layout.setSpacing(10)
         
         # Nombre del proyecto
-        name = QLabel(project[1])  # name
+        name = QLabel(project['name'])
         name.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
         name.setWordWrap(True)
         layout.addWidget(name)
-        
+
         # Estado
-        status = project[3]  # status
+        status = project['status']
         status_label = QLabel(f"Estado: {status}")
         status_colors = {
             'Pendiente': '#FFA500',
@@ -157,27 +157,28 @@ class ProjectsWidget(QWidget):
         color = status_colors.get(status, '#888')
         status_label.setStyleSheet(f"color: {color}; font-weight: bold;")
         layout.addWidget(status_label)
-        
+
         # Modelo y filamento
-        model_name = project[11] if project[11] else "Sin modelo"
-        filament_info = f"{project[12]} {project[13]}" if project[12] else "Sin filamento"
-        
+        model_name = project['model_name'] if project['model_name'] else "Sin modelo"
+        filament_info = (f"{project['filament_brand']} {project['material_type']}"
+                         if project['filament_brand'] else "Sin filamento")
+
         info = QLabel(f"Modelo: {model_name}\nFilamento: {filament_info}")
         info.setStyleSheet("color: #aaa; font-size: 12px;")
         info.setWordWrap(True)
         layout.addWidget(info)
-        
+
         # Coste total
-        total_cost = project[6] if project[6] else 0
+        total_cost = project['total_cost'] or 0
         cost_label = QLabel(f"Coste: {total_cost:.2f} €")
         cost_label.setStyleSheet("color: #28a745; font-size: 16px; font-weight: bold;")
         layout.addWidget(cost_label)
-        
+
         layout.addStretch()
-        
+
         # Botones de acción
         btn_layout = QHBoxLayout()
-        
+
         btn_edit = QPushButton("Editar")
         btn_edit.setCursor(Qt.PointingHandCursor)
         btn_edit.setStyleSheet("""
@@ -192,9 +193,9 @@ class ProjectsWidget(QWidget):
                 background-color: #0056b3;
             }
         """)
-        btn_edit.clicked.connect(lambda: self.edit_project(project[0]))
+        btn_edit.clicked.connect(lambda checked, pid=project['id']: self.edit_project(pid))
         btn_layout.addWidget(btn_edit)
-        
+
         btn_delete = QPushButton("Eliminar")
         btn_delete.setCursor(Qt.PointingHandCursor)
         btn_delete.setStyleSheet("""
@@ -211,7 +212,7 @@ class ProjectsWidget(QWidget):
                 background-color: #d32f2f;
             }
         """)
-        btn_delete.clicked.connect(lambda: self.delete_project(project[0], project[1]))
+        btn_delete.clicked.connect(lambda checked, pid=project['id'], pname=project['name']: self.delete_project(pid, pname))
         btn_layout.addWidget(btn_delete)
         
         layout.addLayout(btn_layout)
@@ -256,15 +257,13 @@ class ProjectsWidget(QWidget):
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Guardar Informe de Estadísticas", "", "Archivos PDF (*.pdf)"
         )
-        
+
         if file_path:
             if not file_path.endswith('.pdf'):
                 file_path += '.pdf'
-                
+
             try:
-                # Convertir Row a dict si es necesario
-                stats_dict = dict(stats)
-                self.report_generator.generate_stats_report(self.user['username'], stats_dict, file_path)
+                self.report_generator.generate_stats_report(self.user['username'], stats, file_path)
                 MessageBoxHelper.show_info(self, "Éxito", "Informe guardado correctamente")
             except Exception as e:
                 MessageBoxHelper.show_warning(self, "Error", f"No se pudo guardar el informe: {str(e)}")
@@ -300,64 +299,64 @@ class ProjectDialog(QDialog):
         self.name_input = QLineEdit()
         self.name_input.setStyleSheet(self.get_input_style())
         if self.is_edit:
-            self.name_input.setText(self.project[1])
+            self.name_input.setText(self.project['name'])
         form_layout.addRow("Nombre:", self.name_input)
-        
+
         # Descripción
         self.desc_input = QTextEdit()
         self.desc_input.setMaximumHeight(80)
         self.desc_input.setStyleSheet(self.get_input_style())
-        if self.is_edit and self.project[2]:
-            self.desc_input.setPlainText(self.project[2])
+        if self.is_edit and self.project.get('description'):
+            self.desc_input.setPlainText(self.project['description'])
         form_layout.addRow("Descripción:", self.desc_input)
-        
+
         # Estado
         self.status_combo = QComboBox()
         self.status_combo.addItems(["Pendiente", "En Progreso", "Completado"])
         self.status_combo.setStyleSheet(self.get_combo_style())
         if self.is_edit:
-            index = self.status_combo.findText(self.project[3])
+            index = self.status_combo.findText(self.project['status'])
             if index >= 0:
                 self.status_combo.setCurrentIndex(index)
         form_layout.addRow("Estado:", self.status_combo)
-        
+
         # Modelo
         self.model_combo = QComboBox()
         self.load_models()
         self.model_combo.setStyleSheet(self.get_combo_style())
-        if self.is_edit and self.project[9]:
-            index = self.model_combo.findData(self.project[9])
+        if self.is_edit and self.project.get('model_id'):
+            index = self.model_combo.findData(self.project['model_id'])
             if index >= 0:
                 self.model_combo.setCurrentIndex(index)
         form_layout.addRow("Modelo:", self.model_combo)
-        
+
         # Filamento
         self.filament_combo = QComboBox()
         self.load_filaments()
         self.filament_combo.setStyleSheet(self.get_combo_style())
-        if self.is_edit and self.project[10]:
-            index = self.filament_combo.findData(self.project[10])
+        if self.is_edit and self.project.get('filament_id'):
+            index = self.filament_combo.findData(self.project['filament_id'])
             if index >= 0:
                 self.filament_combo.setCurrentIndex(index)
         form_layout.addRow("Filamento:", self.filament_combo)
-        
+
         # Peso
         self.weight_input = QDoubleSpinBox()
         self.weight_input.setRange(0, 10000)
         self.weight_input.setSuffix(" g")
         self.weight_input.setStyleSheet(self.get_input_style())
-        if self.is_edit and self.project[4]:
-            self.weight_input.setValue(self.project[4])
+        if self.is_edit and self.project.get('weight_grams'):
+            self.weight_input.setValue(self.project['weight_grams'])
         form_layout.addRow("Peso:", self.weight_input)
-        
+
         # Tiempo de impresión
         self.time_input = QDoubleSpinBox()
         self.time_input.setRange(0, 1000)
         self.time_input.setSuffix(" h")
         self.time_input.setDecimals(1)
         self.time_input.setStyleSheet(self.get_input_style())
-        if self.is_edit and self.project[5]:
-            self.time_input.setValue(self.project[5])
+        if self.is_edit and self.project.get('print_time_hours'):
+            self.time_input.setValue(self.project['print_time_hours'])
         form_layout.addRow("Tiempo impresión:", self.time_input)
         
         layout.addLayout(form_layout)
@@ -435,21 +434,19 @@ class ProjectDialog(QDialog):
         # Calcular costes si hay datos
         costs = {'filament_cost': 0, 'energy_cost': 0, 'total_cost': 0}
         if weight > 0 and time_hours > 0 and filament_id:
-            # Obtener precio del filamento
             filament = self.inventory_manager.get_filament_by_id(filament_id)
             if filament:
-                price_per_kg = filament[8]  # price (índice 8 según schema)
-                costs = self.project_manager.calculate_costs(weight, price_per_kg, time_hours)
-        
+                costs = self.project_manager.calculate_costs(
+                    weight, filament['price'], time_hours
+                )
+
         if self.is_edit:
-            # Actualizar proyecto existente
-            # M9: Si el estado es "Completado", registramos la fecha de finalización
             extra_fields = {}
             if status == "Completado":
-                extra_fields['completed_at'] = datetime.now()
-            
+                extra_fields['completed_at'] = datetime.now().isoformat()
+
             success, message = self.project_manager.update_project(
-                self.project[0],
+                self.project['id'],
                 name=name,
                 description=description,
                 status=status,
@@ -463,34 +460,28 @@ class ProjectDialog(QDialog):
             
             if success:
                 # RF3: Descontar filamento al completar (solo si NO estaba ya completado)
-                was_completed = self.project[3] == "Completado"
+                was_completed = self.project['status'] == "Completado"
                 if status == "Completado" and not was_completed and filament_id and weight > 0:
                     filament = self.inventory_manager.get_filament_by_id(filament_id)
                     if filament:
-                        peso_actual = filament[7]  # weight_current
-                        nuevo_peso = max(0, peso_actual - weight)
+                        nuevo_peso = max(0, filament['weight_current'] - weight)
                         self.inventory_manager.update_filament_weight(filament_id, nuevo_peso)
         else:
-            # Crear nuevo proyecto
             success, message = self.project_manager.create_project(
                 self.user_id, name, description, model_id, filament_id,
                 weight, time_hours, status
             )
-            
-            # Actualizar costes y RF3
+
             if success:
-                # Obtener el ID del proyecto recién creado y actualizar costes
                 projects = self.project_manager.get_all_projects(self.user_id)
                 if projects:
-                    latest_project_id = projects[0][0]
-                    self.project_manager.update_project(latest_project_id, **costs)
-                
-                # RF3: Descontar filamento si el proyecto se crea directamente como "Completado"
+                    self.project_manager.update_project(projects[0]['id'], **costs)
+
+                # RF3: Descontar filamento si se crea directamente como "Completado"
                 if status == "Completado" and filament_id and weight > 0:
                     filament = self.inventory_manager.get_filament_by_id(filament_id)
                     if filament:
-                        peso_actual = filament[7]  # weight_current
-                        nuevo_peso = max(0, peso_actual - weight)
+                        nuevo_peso = max(0, filament['weight_current'] - weight)
                         self.inventory_manager.update_filament_weight(filament_id, nuevo_peso)
         
         if success:

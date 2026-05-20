@@ -28,14 +28,12 @@ class AuthManager:
             except VerifyMismatchError:
                 return False
         elif '$' in stored_hash:
-            # salt$sha256 format
             try:
                 salt, hash_value = stored_hash.split('$', 1)
                 return hashlib.sha256((salt + password).encode()).hexdigest() == hash_value
             except ValueError:
                 return False
         else:
-            # legacy pure SHA-256
             return hashlib.sha256(password.encode()).hexdigest() == stored_hash
 
     def _is_rate_limited(self, username: str) -> bool:
@@ -62,9 +60,10 @@ class AuthManager:
         if len(password) < 8:
             return False, "Contraseña demasiado corta: mínimo 8 caracteres"
         try:
-            password_hash = self._hash_password(password)
-            query = "INSERT INTO users (username, password_hash, email, is_guest) VALUES (?, ?, ?, 0)"
-            self.db.execute_query(query, (username, password_hash, email))
+            self.db.execute(
+                "INSERT INTO users (username, password_hash, email, is_guest) VALUES (?, ?, ?, 0)",
+                (username, self._hash_password(password), email)
+            )
             return True, "Usuario registrado exitosamente"
         except sqlite3.IntegrityError:
             return False, "El nombre de usuario ya existe"
@@ -75,26 +74,26 @@ class AuthManager:
         if self._is_rate_limited(username):
             return False, "Demasiados intentos, espera un minuto"
         try:
-            query = "SELECT id, username, password_hash, is_guest, email FROM users WHERE username = ? AND is_guest = 0"
-            result = self.db.fetch_one(query, (username,))
-
-            if result and self._verify_password(password, result[2]):
+            result = self.db.query_one(
+                "SELECT id, username, password_hash, is_guest, email FROM users WHERE username = ? AND is_guest = 0",
+                (username,)
+            )
+            if result and self._verify_password(password, result['password_hash']):
                 self._reset_attempts(username)
                 self.current_user = {
-                    'id': result[0],
-                    'username': result[1],
-                    'is_guest': result[3],
-                    'email': result[4],
+                    'id': result['id'],
+                    'username': result['username'],
+                    'is_guest': result['is_guest'],
+                    'email': result['email'],
                 }
-                self.db.execute_query(
+                self.db.execute(
                     "UPDATE users SET last_login = ? WHERE id = ?",
-                    (datetime.now(), result[0])
+                    (datetime.now().isoformat(), result['id'])
                 )
-                # Rehash legacy hashes transparently
-                if not result[2].startswith('$argon2'):
-                    self.db.execute_query(
+                if not result['password_hash'].startswith('$argon2'):
+                    self.db.execute(
                         "UPDATE users SET password_hash = ? WHERE id = ?",
-                        (self._hash_password(password), result[0])
+                        (self._hash_password(password), result['id'])
                     )
                 return True, "Inicio de sesión exitoso"
             else:
@@ -104,18 +103,17 @@ class AuthManager:
             return False, f"Error al iniciar sesión: {str(e)}"
 
     def login_from_session(self, user_id: int) -> bool:
-        """Auto-login from a validated session token (no password required)."""
         try:
-            result = self.db.fetch_one(
+            result = self.db.query_one(
                 "SELECT id, username, is_guest, email FROM users WHERE id = ? AND is_guest = 0",
                 (user_id,)
             )
             if result:
                 self.current_user = {
-                    'id': result[0],
-                    'username': result[1],
-                    'is_guest': result[2],
-                    'email': result[3],
+                    'id': result['id'],
+                    'username': result['username'],
+                    'is_guest': result['is_guest'],
+                    'email': result['email'],
                 }
                 return True
             return False
