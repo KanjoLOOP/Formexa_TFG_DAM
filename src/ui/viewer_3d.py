@@ -86,7 +86,10 @@ class Viewer3DWidget(QWidget):
                     return
 
             if len(mesh.faces) > 5000:
-                mesh = mesh.simplify_quadratic_decimation(5000)
+                try:
+                    mesh = mesh.simplify_quadratic_decimation(5000)
+                except Exception:
+                    pass
 
             vertices = mesh.vertices
             faces = mesh.faces

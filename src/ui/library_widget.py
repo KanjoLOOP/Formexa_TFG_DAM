@@ -191,12 +191,15 @@ class LibraryWidget(QWidget):
             name = os.path.basename(file_path)
             
             # C5c: Pasar user_id al añadir el modelo
-            success, msg = self.manager.add_model(file_path, name, user_id=self.user_id)
-            if success:
-                self.refresh_list()
-                MessageBoxHelper.show_info(self, "Éxito", msg)
-            else:
-                MessageBoxHelper.show_warning(self, "Error", msg)
+            try:
+                success, msg = self.manager.add_model(file_path, name, user_id=self.user_id)
+                if success:
+                    self.refresh_list()
+                    MessageBoxHelper.show_info(self, "Éxito", msg)
+                else:
+                    MessageBoxHelper.show_warning(self, "Error", msg)
+            except Exception as e:
+                MessageBoxHelper.show_warning(self, "Error", f"Error inesperado al añadir modelo: {e}")
 
     def delete_model(self):
         """Elimina el modelo seleccionado."""
