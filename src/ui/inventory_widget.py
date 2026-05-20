@@ -28,42 +28,14 @@ class InventoryWidget(QWidget):
 
         self.input_type = QComboBox()
         self.input_type.addItems(["PLA", "PETG", "ABS", "TPU", "ASA", "Otro"])
-        self.input_type.setStyleSheet("""
-            QComboBox {
-                background-color: #333333;
-                color: white;
-                border: 1px solid #444;
-                border-radius: 4px;
-                padding: 5px;
-            }
-            QComboBox QAbstractItemView {
-                background-color: #333333;
-                color: white;
-                selection-background-color: #555;
-            }
-        """)
         form_layout.addWidget(self.input_type)
 
         self.input_color = QComboBox()
         self.input_color.addItems([
-            "Negro", "Blanco", "Gris", "Plateado", "Rojo", "Azul", 
-            "Verde", "Amarillo", "Naranja", "Morado", "Rosa", 
+            "Negro", "Blanco", "Gris", "Plateado", "Rojo", "Azul",
+            "Verde", "Amarillo", "Naranja", "Morado", "Rosa",
             "Marrón", "Transparente", "Oro", "Cobre", "Bronce", "Otro"
         ])
-        self.input_color.setStyleSheet("""
-            QComboBox {
-                background-color: #333333;
-                color: white;
-                border: 1px solid #444;
-                border-radius: 4px;
-                padding: 5px;
-            }
-            QComboBox QAbstractItemView {
-                background-color: #333333;
-                color: white;
-                selection-background-color: #555;
-            }
-        """)
         form_layout.addWidget(self.input_color)
 
         self.input_weight = QLineEdit()
@@ -75,18 +47,7 @@ class InventoryWidget(QWidget):
         form_layout.addWidget(self.input_price)
 
         self.btn_add = QPushButton("Añadir")
-        self.btn_add.setStyleSheet("""
-            QPushButton {
-                background-color: #28a745;
-                color: white;
-                border-radius: 4px;
-                padding: 6px 12px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #218838;
-            }
-        """)
+        self.btn_add.setObjectName("btn_success_sm")
         self.btn_add.clicked.connect(self.add_filament)
         form_layout.addWidget(self.btn_add)
 
@@ -105,19 +66,7 @@ class InventoryWidget(QWidget):
         # --- Botones de Acción ---
         action_layout = QHBoxLayout()
         self.btn_delete = QPushButton("Eliminar Seleccionado")
-        self.btn_delete.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                border-radius: 4px;
-                padding: 6px 12px;
-                font-weight: bold;
-                border: none;
-            }
-            QPushButton:hover {
-                background-color: #d32f2f;
-            }
-        """)
+        self.btn_delete.setObjectName("btn_danger_sm")
         self.btn_delete.clicked.connect(self.delete_filament)
         action_layout.addWidget(self.btn_delete)
         action_layout.addStretch()
