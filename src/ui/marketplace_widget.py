@@ -31,19 +31,7 @@ class MarketplaceWidget(QWidget):
         
         btn_upload = QPushButton("Subir Modelo")
         btn_upload.setCursor(Qt.PointingHandCursor)
-        btn_upload.setStyleSheet("""
-            QPushButton {
-                background-color: #28a745;
-                color: white;
-                border-radius: 6px;
-                padding: 8px 16px;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #218838;
-            }
-        """)
+        btn_upload.setObjectName("btn_success")
         btn_upload.clicked.connect(self.open_upload_dialog)
         header_layout.addWidget(btn_upload)
         
@@ -238,22 +226,7 @@ class MarketplaceWidget(QWidget):
 
         btn_buy = QPushButton("Obtener" if item_data["price"] == "Gratis" else "Comprar")
         btn_buy.setCursor(Qt.PointingHandCursor)
-        btn_buy.setStyleSheet("""
-            QPushButton {
-                background-color: #007BFF;
-                color: white;
-                border-radius: 6px;
-                padding: 8px;
-                font-weight: bold;
-                border: none;
-            }
-            QPushButton:hover {
-                background-color: #1a8cff;
-            }
-            QPushButton:pressed {
-                background-color: #0056b3;
-            }
-        """)
+        btn_buy.setObjectName("btn_primary")
         btn_buy.clicked.connect(lambda: self.buy_item(item_data["name"]))
         layout.addWidget(btn_buy)
 
@@ -272,32 +245,26 @@ class MarketplaceWidget(QWidget):
         form_layout.setSpacing(15)
         
         name_input = QLineEdit()
-        name_input.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: white;")
         form_layout.addRow("Nombre del Modelo:", name_input)
         
         price_input = QLineEdit()
         price_input.setPlaceholderText("Ej: 5.00 € o Gratis")
-        price_input.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: white;")
         form_layout.addRow("Precio:", price_input)
         
         desc_input = QLineEdit()
         desc_input.setPlaceholderText("Breve descripción")
-        desc_input.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: white;")
         form_layout.addRow("Descripción:", desc_input)
         
         cost_input = QLineEdit()
         cost_input.setPlaceholderText("Gramos (g)")
-        cost_input.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: white;")
         form_layout.addRow("Coste Impresión (g):", cost_input)
 
         # AMS Checkbox
         ams_check = QCheckBox("Usar AMS (Multicolor)")
-        ams_check.setStyleSheet("color: white; font-weight: bold;")
         form_layout.addRow("", ams_check)
 
         # Contenedor para colores AMS
         ams_group = QGroupBox("Coste por Color (g)")
-        ams_group.setStyleSheet("QGroupBox { color: white; border: 1px solid #555; margin-top: 10px; padding-top: 15px; }")
         ams_layout = QVBoxLayout(ams_group)
         ams_layout.setSpacing(10)
         
@@ -321,11 +288,9 @@ class MarketplaceWidget(QWidget):
             btn_color.clicked.connect(lambda checked, idx=i, b=btn_color: pick_color(idx, b))
             
             lbl = QLabel(f"Color {i+1}:")
-            lbl.setStyleSheet("color: #ccc;")
-            
+
             inp = QLineEdit()
             inp.setPlaceholderText("g")
-            inp.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: white;")
             
             # Layout fila: [Color Box] [Label] [Input]
             h_layout = QHBoxLayout()
@@ -354,9 +319,8 @@ class MarketplaceWidget(QWidget):
         img_input = QLineEdit()
         img_input.setReadOnly(True)
         img_input.setPlaceholderText("Seleccionar imagen...")
-        img_input.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: #aaa;")
         btn_img = QPushButton("Examinar")
-        btn_img.setStyleSheet("background-color: #555; color: white; border-radius: 4px; padding: 5px;")
+        btn_img.setObjectName("btn_browse")
         
         def select_image():
             path, _ = QFileDialog.getOpenFileName(dialog, "Seleccionar Imagen", "", "Imágenes (*.png *.jpg *.jpeg)")
@@ -373,9 +337,8 @@ class MarketplaceWidget(QWidget):
         stl_input = QLineEdit()
         stl_input.setReadOnly(True)
         stl_input.setPlaceholderText("Seleccionar archivo STL...")
-        stl_input.setStyleSheet("background-color: #3a3a3a; border: 1px solid #555; padding: 5px; color: #aaa;")
         btn_stl = QPushButton("Examinar")
-        btn_stl.setStyleSheet("background-color: #555; color: white; border-radius: 4px; padding: 5px;")
+        btn_stl.setObjectName("btn_browse")
         
         def select_stl():
             path, _ = QFileDialog.getOpenFileName(dialog, "Seleccionar STL", "", "Archivos STL (*.stl)")
@@ -394,7 +357,6 @@ class MarketplaceWidget(QWidget):
         btn_cancel = buttons.addButton("Cancelar", QDialogButtonBox.RejectRole)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
-        buttons.setStyleSheet("QPushButton { background-color: #007BFF; color: white; padding: 6px 12px; border-radius: 4px; }")
         layout.addWidget(buttons)
         
         if dialog.exec_() == QDialog.Accepted:
