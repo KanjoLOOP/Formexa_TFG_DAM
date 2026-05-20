@@ -51,25 +51,7 @@ class SettingsWidget(QWidget):
         self.lang_label.setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;")
         self.lang_combo = QComboBox()
         self.lang_combo.addItems(["Español", "English", "Français"])
-        self.lang_combo.setStyleSheet("""
-            QComboBox {
-                background-color: #333333;
-                color: white;
-                border: 1px solid #555;
-                padding: 5px;
-                border-radius: 4px;
-                min-width: 150px;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox QAbstractItemView {
-                background-color: #333333;
-                color: white;
-                selection-background-color: #555;
-                selection-color: white;
-            }
-        """)
+        self.lang_combo.setMinimumWidth(150)
         self.lang_combo.currentIndexChanged.connect(self.on_language_changed)
         lang_layout.addWidget(self.lang_label)
         lang_layout.addWidget(self.lang_combo)
@@ -95,22 +77,7 @@ class SettingsWidget(QWidget):
         data_buttons = QHBoxLayout()
         btn_backup = QPushButton("Crear Copia de Seguridad")
         btn_backup.setCursor(Qt.PointingHandCursor)
-        btn_backup.setStyleSheet("""
-            QPushButton {
-                background-color: #28a745;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #218838;
-            }
-            QPushButton:pressed {
-                background-color: #1e7e34;
-            }
-        """)
+        btn_backup.setObjectName("btn_success")
         btn_backup.clicked.connect(self.backup_database)
         data_buttons.addWidget(btn_backup)
         data_buttons.addStretch()
@@ -137,39 +104,12 @@ class SettingsWidget(QWidget):
         
         self.btn_logout = QPushButton("Cambiar de Cuenta")
         self.btn_logout.setCursor(Qt.PointingHandCursor)
-        self.btn_logout.setStyleSheet("""
-            QPushButton {
-                background-color: #007BFF;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1a8cff;
-            }
-            QPushButton:pressed {
-                background-color: #0056b3;
-            }
-        """)
+        self.btn_logout.setObjectName("btn_primary")
         self.btn_logout.clicked.connect(self.handle_logout)
         
         self.btn_exit = QPushButton("Salir")
         self.btn_exit.setCursor(Qt.PointingHandCursor)
-        self.btn_exit.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #d32f2f;
-            }
-        """)
+        self.btn_exit.setObjectName("btn_danger")
         self.btn_exit.clicked.connect(self.handle_exit)
         
         session_buttons.addWidget(self.btn_logout)
@@ -196,33 +136,12 @@ class SettingsWidget(QWidget):
         self.error_text = QTextEdit()
         self.error_text.setPlaceholderText("Escribe aquí los detalles del error...")
         self.error_text.setMinimumHeight(100)
-        self.error_text.setStyleSheet("""
-            QTextEdit {
-                background-color: #333;
-                color: #e0e0e0;
-                border: 1px solid #555;
-                border-radius: 4px;
-                padding: 10px;
-            }
-        """)
         report_layout.addWidget(self.error_text)
 
         btn_layout = QHBoxLayout()
         self.send_btn = QPushButton("Enviar Reporte")
         self.send_btn.setCursor(Qt.PointingHandCursor)
-        self.send_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #d32f2f;
-            }
-        """)
+        self.send_btn.setObjectName("btn_danger_sm")
         self.send_btn.clicked.connect(self.submit_report)
         btn_layout.addStretch()
         btn_layout.addWidget(self.send_btn)
